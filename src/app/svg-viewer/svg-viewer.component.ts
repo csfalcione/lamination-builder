@@ -1,4 +1,4 @@
-import {Component, Input, OnInit} from '@angular/core';
+import {Component, Input} from '@angular/core';
 import {DomSanitizer, SafeHtml} from '@angular/platform-browser';
 
 @Component({
