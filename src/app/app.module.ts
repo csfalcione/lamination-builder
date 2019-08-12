@@ -3,12 +3,14 @@ import { NgModule } from '@angular/core';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
-import { SvgViewerComponent } from './svg-viewer/svg-viewer.component';
+import { LaminationBuilderComponent } from './lamination-builder/lamination-builder.component';
+import { LaminationViewerComponent } from './lamination-viewer/lamination-viewer.component';
 
 @NgModule({
   declarations: [
     AppComponent,
-    SvgViewerComponent
+    LaminationBuilderComponent,
+    LaminationViewerComponent
   ],
   imports: [
     BrowserModule,

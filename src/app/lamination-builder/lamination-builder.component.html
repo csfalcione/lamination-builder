@@ -1,0 +1,11 @@
+
+<div>
+  <strong style="margin-right: 4px">Pullbacks:</strong>
+  <input type="text" [value]="numPullbacks" (input)="numPullbacks = $event.target.value"
+    style="max-width: 40px; margin-right: 4px">
+  <button (click)="generateLamination()">Render Lamination</button>
+</div>
+
+<br/>
+
+<app-lamination-viewer [lamination]="lamination" [criticalChords]="criticalChords"></app-lamination-viewer>
