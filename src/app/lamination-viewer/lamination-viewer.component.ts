@@ -1,5 +1,6 @@
 import { Component, OnInit, Input, ViewChild, ElementRef } from '@angular/core';
 import { Polygon, NaryFraction, Chord } from 'laminations-lib';
+import { RenderSettings, LaminationState } from '../builder-state';
 
 const mod = (a, b) => ((a % b) + b) % b
 
@@ -24,20 +25,15 @@ const svgPoint = (t: NaryFraction, radius: number) => {
 })
 export class LaminationViewerComponent implements OnInit {
 
-  @Input() lamination: Array<Polygon>
+  @Input() settings: RenderSettings
 
-  @Input() criticalChords: Array<Chord> = []
-
-  @Input() hyperbolic: boolean = true
+  @Input() laminationState: LaminationState
 
   @ViewChild('laminationCanvas') canvas: ElementRef
 
-  width = 600
-  height = 600
-
   constructor() { }
 
-  ngOnInit() {}
+  ngOnInit() { }
 
   ngOnChanges() {
     const ctx: CanvasRenderingContext2D = this.canvas.nativeElement.getContext('2d')
@@ -49,29 +45,30 @@ export class LaminationViewerComponent implements OnInit {
     ctx.transform(1, 0, 0, -1, midX, midY)
 
     ctx.lineWidth = 2
-    ctx.fillStyle = '#CC0000'
-    this.drawLamination(ctx, this.lamination)
+    ctx.strokeStyle = this.settings.chordColor
+    ctx.fillStyle = this.settings.polygonColor
+    this.drawLamination(ctx, this.laminationState.lamination)
 
     ctx.lineWidth = 2
-    ctx.strokeStyle = '#0000AA'
-    this.drawCriticalChords(ctx, this.criticalChords)
+    ctx.strokeStyle = this.settings.criticalChordColor
+    this.drawCriticalChords(ctx, this.laminationState.criticalChords)
 
     ctx.lineWidth = 3
-    ctx.strokeStyle = '#000000'
-    this.drawCircle(ctx)
+    ctx.strokeStyle = this.settings.circleColor
+    this.drawCircle(ctx, this.getRadius())
 
     ctx.resetTransform()
   }
 
   clearCanvas(ctx: CanvasRenderingContext2D) {
     console.debug("clearing canvas")
-    ctx.clearRect(0, 0, this.width, this.height)
+    const size = this.settings.size
+    ctx.clearRect(0, 0, size, size)
   }
 
-  drawCircle(ctx: CanvasRenderingContext2D) {
-    const radius = this.getRadius()
+  drawCircle(ctx: CanvasRenderingContext2D, radius: number) {
     ctx.beginPath()
-    ctx.arc(0, 0, radius, 0, 2* Math.PI)
+    ctx.arc(0, 0, radius, 0, 2 * Math.PI)
     ctx.clip()
     ctx.closePath()
     ctx.stroke()
@@ -116,7 +113,8 @@ export class LaminationViewerComponent implements OnInit {
     return pathSpecs.join(' ')
   }
 
-  getLinePathTo(point: NaryFraction, prevPoint: NaryFraction, circleRadius: number, hyperbolic = this.hyperbolic) {
+  getLinePathTo(point: NaryFraction, prevPoint: NaryFraction,
+    circleRadius: number, hyperbolic = this.settings.renderHyperbolic) {
     if (!hyperbolic) {
       return `L ${svgPoint(point, circleRadius)}`
     }
@@ -126,17 +124,18 @@ export class LaminationViewerComponent implements OnInit {
       return this.getLinePathTo(point, prevPoint, circleRadius, false)
     }
     const sweepFlag = chordWidth <= 0.5 ? 0 : 1
-    const arcRadius = circleRadius * Math.tan(Math.PI*Math.min(chordWidth, 1 - chordWidth))
+    const arcRadius = circleRadius * Math.tan(Math.PI * Math.min(chordWidth, 1 - chordWidth))
 
     return `A ${arcRadius},${arcRadius} 0 0,${sweepFlag} ${svgPoint(point, circleRadius)}`
   }
 
   getMidpoint(): [number, number] {
-    return [this.width / 2, this.height / 2]
+    const half = this.settings.size / 2
+    return [half, half]
   }
 
   getRadius() {
-    return Math.floor(Math.min(this.width, this.height)) / 2 - 10
+    return Math.floor(this.settings.size / 2) - 10
   }
 
   prettyPrint(lamination: Array<Polygon>) {

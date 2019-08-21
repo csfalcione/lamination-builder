@@ -1,5 +1,8 @@
 import { Component, OnInit } from '@angular/core';
-import {NaryFraction, Chord, Polygon, BranchRegion, makeRegion, PullbackLamination} from 'laminations-lib'
+import { NaryFraction, Chord, Polygon, BranchRegion, makeRegion, PullbackLamination } from 'laminations-lib'
+import { RenderSettings, LaminationState } from '../builder-state';
+import { from, Observable, Subject } from 'rxjs'
+import { map, take } from 'rxjs/operators'
 
 @Component({
   selector: 'app-lamination-builder',
@@ -8,8 +11,8 @@ import {NaryFraction, Chord, Polygon, BranchRegion, makeRegion, PullbackLaminati
 })
 export class LaminationBuilderComponent implements OnInit {
 
-  lamination: Array<Polygon> = []
-  criticalChords: Array<Chord> = []
+  renderSettings: RenderSettings = this.initialRenderSettings()
+  laminationState: LaminationState = this.initialLaminationState()
 
   numPullbacks = '4'
 
@@ -20,22 +23,24 @@ export class LaminationBuilderComponent implements OnInit {
 
   generateLamination() {
     const iterations = parseInt(this.numPullbacks) + 1
-    const pullbackGenerator = this.rabbitLamination()
-    for (let i = 0; i < iterations; i++) {
-      const leaves = pullbackGenerator.next().value
-      this.lamination = leaves
-    }
+    this.rabbitLamination()
+      .pipe(
+        take(iterations)
+      )
+      .subscribe(state => {
+        this.laminationState = state
+      })
   }
 
-  rabbitLamination() {
+  rabbitLamination(): Observable<LaminationState> {
     const binary = NaryFraction.factory(2)
 
     const criticalChord = Chord.new(
       binary([], [0, 0, 1]), // 1/7
       binary([1], [0, 1, 0]) // 9/14
     )
-    this.criticalChords = [criticalChord]
-    
+    const criticalChords = [criticalChord]
+
     const firstRegion = (point: NaryFraction) => criticalChord.inInnerRegion(point) || point.equals(criticalChord.lower)
     const secondRegion = (point: NaryFraction) => !firstRegion(point)
 
@@ -50,10 +55,16 @@ export class LaminationBuilderComponent implements OnInit {
       binary([], [1, 0, 0]), // 4/7
     ])
 
-    return PullbackLamination.iterates([startingTriangle], branches)
+    return from(PullbackLamination.iterates([startingTriangle], branches))
+      .pipe(
+        map(lamination => ({
+          lamination,
+          criticalChords,
+        }))
+      )
   }
 
-  ternarySymmetricLamination() {
+  ternarySymmetricLamination(): Observable<LaminationState> {
     const ternary = NaryFraction.factory(3)
     const criticalA = Chord.new(
       ternary([], [0, 1]), // 1/8
@@ -63,7 +74,7 @@ export class LaminationBuilderComponent implements OnInit {
       ternary([0], [2, 1]), // 7/24
       ternary([], [1, 2]) // 5/8
     )
-    this.criticalChords = [criticalA, criticalB]
+    const criticalChords = [criticalA, criticalB]
 
     const firstRegion = (point: NaryFraction) => criticalA.inOuterRegion(point) || point.equals(criticalA.lower)
     const secondRegion = (point: NaryFraction) => criticalB.inInnerRegion(point) || point.equals(criticalB.upper)
@@ -86,7 +97,32 @@ export class LaminationBuilderComponent implements OnInit {
       )
     ].map(Polygon.fromChord)
 
-    return PullbackLamination.iterates(firstLeaves, branches)
+    return from(PullbackLamination.iterates(firstLeaves, branches))
+      .pipe(
+        map(lamination => ({
+          lamination,
+          criticalChords,
+        }))
+      )
+  }
+
+  initialLaminationState(): LaminationState {
+    return {
+      lamination: [],
+      criticalChords: [],
+    }
+  }
+
+  initialRenderSettings(): RenderSettings {
+    return {
+      renderHyperbolic: true,
+      size: 600,
+      polygonColor: '#CC0000',
+      chordColor: '#000000',
+      criticalChordColor: '#0000AA',
+      backgroundColor: '#DBDBDB',
+      circleColor: '#000000',
+    }
   }
 
 }

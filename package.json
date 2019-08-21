@@ -20,7 +20,7 @@
     "@angular/platform-browser-dynamic": "^7.2.15",
     "@angular/router": "^7.2.15",
     "core-js": "^2.6.9",
-    "laminations-lib": "^0.2.3",
+    "laminations-lib": "^0.2.5",
     "rxjs": "~6.3.3",
     "svg-builder": "^1.0.0",
     "tslib": "^1.10.0",
