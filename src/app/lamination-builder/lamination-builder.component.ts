@@ -23,7 +23,7 @@ export class LaminationBuilderComponent implements OnInit {
 
   generateLamination() {
     const iterations = parseInt(this.numPullbacks) + 1
-    this.rabbitLamination()
+    this.ternarySymmetricLamination()
       .pipe(
         take(iterations)
       )
