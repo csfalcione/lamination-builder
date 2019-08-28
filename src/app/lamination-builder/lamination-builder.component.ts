@@ -23,7 +23,7 @@ export class LaminationBuilderComponent implements OnInit {
 
   generateLamination() {
     const iterations = parseInt(this.numPullbacks) + 1
-    this.ternarySymmetricLamination()
+    this.rabbitLamination_ternary()
       .pipe(
         take(iterations)
       )
@@ -53,6 +53,47 @@ export class LaminationBuilderComponent implements OnInit {
       binary([], [0, 0, 1]), // 1/7
       binary([], [0, 1, 0]), // 2/7
       binary([], [1, 0, 0]), // 4/7
+    ])
+
+    return from(PullbackLamination.iterates([startingTriangle], branches))
+      .pipe(
+        map(lamination => ({
+          lamination,
+          criticalChords,
+        }))
+      )
+  }
+
+  rabbitLamination_ternary(): Observable<LaminationState> {
+    const ternary = NaryFraction.factory(3)
+
+    const pointA = ternary([], [0, 0, 1])
+    const pointB = ternary([1], [0, 1, 0])
+    const pointC = ternary([2], [0, 1, 0])
+
+    const criticalA = Chord.new(pointA, pointB)
+    const criticalB = Chord.new(pointB, pointC)
+    const criticalC = Chord.new(pointC, pointA)
+    const criticalChords = [
+      criticalA,
+      criticalB,
+      criticalC,
+    ]
+
+    const firstRegion = (p) => criticalA.inInnerRegion(p) || p.equals(pointA)
+    const secondRegion = (p) => criticalB.inInnerRegion(p) || p.equals(pointB)
+    const thirdRegion = (p) => !firstRegion(p) && !secondRegion(p)
+
+    const branches: Array<BranchRegion> = [
+      firstRegion,
+      secondRegion,
+      thirdRegion,
+    ].map(makeRegion)
+
+    const startingTriangle = Polygon.new([
+      ternary([], [0, 0, 1]),
+      ternary([], [0, 1, 0]),
+      ternary([], [1, 0, 0]),
     ])
 
     return from(PullbackLamination.iterates([startingTriangle], branches))
