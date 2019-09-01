@@ -3,8 +3,8 @@ import { NaryFraction, Chord, Polygon, BranchRegion, makeRegion, PullbackLaminat
 import { RenderSettings, LaminationState } from '../builder-state';
 import { from, Observable, Subject } from 'rxjs'
 import { map, take } from 'rxjs/operators'
-import { ReturnStatement } from '@angular/compiler';
 import { makeSvgRenderer } from '../lamination-renderer/svg-renderer';
+import { saveAs } from 'file-saver'
 
 @Component({
   selector: 'app-lamination-builder',
@@ -15,6 +15,7 @@ export class LaminationBuilderComponent implements OnInit {
 
   renderSettings: RenderSettings = this.initialRenderSettings()
   laminationState: LaminationState = this.initialLaminationState()
+  laminationName = 'lamination'
 
   numPullbacks = 4
 
@@ -33,10 +34,12 @@ export class LaminationBuilderComponent implements OnInit {
     this.generateLamination()
   }
 
-  makeSvg() {
+  saveSvg() {
     const renderer = makeSvgRenderer(this.renderSettings)
     const svgString = renderer.render(this.laminationState)
-    console.debug(svgString)
+    saveAs(new Blob([svgString]), `${this.laminationName}.svg`, {
+      type: 'image/svg+xml'
+    })
   }
 
   generateLamination() {
