@@ -51,6 +51,10 @@ export const makeCanvasRenderer = (ctx: CanvasRenderingContext2D, settings: Rend
     // the positive y direction, and right is the positive x direction.
     ctx.transform(1, 0, 0, -1, midX, midY)
 
+    ctx.lineWidth = 3
+    ctx.strokeStyle = settings.circleColor
+    drawCircle(getRadius())
+
     ctx.lineWidth = 2
     ctx.strokeStyle = settings.chordColor
     ctx.fillStyle = settings.polygonColor
@@ -59,10 +63,6 @@ export const makeCanvasRenderer = (ctx: CanvasRenderingContext2D, settings: Rend
     ctx.lineWidth = 2
     ctx.strokeStyle = settings.criticalChordColor
     drawCriticalChords(laminationState.criticalChords)
-
-    ctx.lineWidth = 3
-    ctx.strokeStyle = settings.circleColor
-    drawCircle(getRadius())
 
     ctx.resetTransform()
   }
