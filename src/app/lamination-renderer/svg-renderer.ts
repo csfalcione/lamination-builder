@@ -1,4 +1,6 @@
-import { Polygon, NaryFraction } from 'laminations-lib';
+import { Polygon, NaryFraction, Chord } from 'laminations-lib';
+import { RenderSettings, LaminationState } from '../builder-state';
+import { LaminationRenderer } from './lamination-renderer';
 
 // JS's % operator performs the remainder operation, not the modulus operation.
 // They behave differently for negatives.
@@ -46,4 +48,60 @@ export const makeSVGPath = (polygon: Polygon, circleRadius: number, hyperbolic: 
   }
 
   return pathSpecs.join(' ')
+}
+
+const tag = (name: string, attributes: Object = {}, body: string = ''): string => {
+  const renderedAttributes = Object.entries(attributes)
+    .filter(([key, _]) => attributes.hasOwnProperty(key))
+    .map(([key, val]) => `${key}="${val}"`)
+    .join(' ')
+  return `<${name} ${renderedAttributes}>${body}</${name}>`
+}
+
+const defaultSvgAttrs = {
+  xmlns: 'http://www.w3.org/2000/svg',
+  'xmlns:xlink': 'http://www.w3.org/1999/xlink',
+}
+
+export const makeSvgRenderer = (settings: RenderSettings): LaminationRenderer<string> => {
+  const radius = Math.floor(settings.size / 2) - 10
+
+  const render = (laminationState: LaminationState): string => {
+    const midpoint = settings.size / 2
+
+    const circle = tag('circle', {
+      r: radius,
+      stroke: settings.circleColor,
+      'stroke-width': 3,
+      fill: 'none',
+    })
+
+    const chords = laminationState.lamination
+      .map((polygon: Polygon) => tag('path', {
+        stroke: settings.chordColor,
+        fill: settings.polygonColor,
+        'stroke-width': 1,
+        d: makeSVGPath(polygon, radius, settings.renderHyperbolic)
+      }))
+      .join('')
+    
+    const criticalChords = laminationState.criticalChords
+      .map((chord: Chord) => tag('path', {
+        stroke: settings.criticalChordColor,
+        'stroke-width': 2,
+        fill: 'none',
+        d: makeSVGPath(Polygon.fromChord(chord), radius, settings.renderHyperbolic)
+      }))
+      .join('')
+
+    return tag('svg', {
+      ...defaultSvgAttrs,
+      width: settings.size,
+      height: settings.size,
+      transform: `matrix(1,0,0,-1,${midpoint},${midpoint})`,
+      'background-color': settings.backgroundColor,
+    }, `${circle}${chords}${criticalChords}`)
+  }
+
+  return {render}
 }

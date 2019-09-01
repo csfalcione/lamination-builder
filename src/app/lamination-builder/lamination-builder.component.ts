@@ -4,6 +4,7 @@ import { RenderSettings, LaminationState } from '../builder-state';
 import { from, Observable, Subject } from 'rxjs'
 import { map, take } from 'rxjs/operators'
 import { ReturnStatement } from '@angular/compiler';
+import { makeSvgRenderer } from '../lamination-renderer/svg-renderer';
 
 @Component({
   selector: 'app-lamination-builder',
@@ -30,6 +31,12 @@ export class LaminationBuilderComponent implements OnInit {
     }
     this.numPullbacks = parsed
     this.generateLamination()
+  }
+
+  makeSvg() {
+    const renderer = makeSvgRenderer(this.renderSettings)
+    const svgString = renderer.render(this.laminationState)
+    console.debug(svgString)
   }
 
   generateLamination() {
