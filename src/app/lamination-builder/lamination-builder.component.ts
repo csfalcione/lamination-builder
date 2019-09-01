@@ -3,6 +3,7 @@ import { NaryFraction, Chord, Polygon, BranchRegion, makeRegion, PullbackLaminat
 import { RenderSettings, LaminationState } from '../builder-state';
 import { from, Observable, Subject } from 'rxjs'
 import { map, take } from 'rxjs/operators'
+import { ReturnStatement } from '@angular/compiler';
 
 @Component({
   selector: 'app-lamination-builder',
@@ -14,15 +15,25 @@ export class LaminationBuilderComponent implements OnInit {
   renderSettings: RenderSettings = this.initialRenderSettings()
   laminationState: LaminationState = this.initialLaminationState()
 
-  numPullbacks = '4'
+  numPullbacks = 4
 
   constructor() { }
 
   ngOnInit() {
+    setTimeout(() => this.generateLamination())
+  }
+
+  setNumPullbacks(input: string) {
+    const parsed = parseInt(input)
+    if (isNaN(parsed)) {
+      return
+    }
+    this.numPullbacks = parsed
+    this.generateLamination()
   }
 
   generateLamination() {
-    const iterations = parseInt(this.numPullbacks) + 1
+    const iterations = this.numPullbacks
     this.rabbitLamination_ternary()
       .pipe(
         take(iterations)
