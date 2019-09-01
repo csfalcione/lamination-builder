@@ -68,12 +68,14 @@ export const makeSvgRenderer = (settings: RenderSettings): LaminationRenderer<st
 
   const render = (laminationState: LaminationState): string => {
     const midpoint = settings.size / 2
+    const transform = `matrix(1,0,0,-1,${midpoint},${midpoint})`
 
     const circle = tag('circle', {
       r: radius,
       stroke: settings.circleColor,
       'stroke-width': 3,
       fill: 'none',
+      transform,
     })
 
     const chords = laminationState.lamination
@@ -81,6 +83,7 @@ export const makeSvgRenderer = (settings: RenderSettings): LaminationRenderer<st
         stroke: settings.chordColor,
         fill: settings.polygonColor,
         'stroke-width': 1,
+        transform,
         d: makeSVGPath(polygon, radius, settings.renderHyperbolic)
       }))
       .join('')
@@ -90,6 +93,7 @@ export const makeSvgRenderer = (settings: RenderSettings): LaminationRenderer<st
         stroke: settings.criticalChordColor,
         'stroke-width': 2,
         fill: 'none',
+        transform,
         d: makeSVGPath(Polygon.fromChord(chord), radius, settings.renderHyperbolic)
       }))
       .join('')
@@ -98,7 +102,6 @@ export const makeSvgRenderer = (settings: RenderSettings): LaminationRenderer<st
       ...defaultSvgAttrs,
       width: settings.size,
       height: settings.size,
-      transform: `matrix(1,0,0,-1,${midpoint},${midpoint})`,
       'background-color': settings.backgroundColor,
     }, `${circle}${chords}${criticalChords}`)
   }
