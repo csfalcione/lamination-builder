@@ -1,9 +1,9 @@
 
 <div>
   <strong style="margin-right: 4px">Pullbacks:</strong>
-  <input type="text" [value]="numPullbacks" (input)="numPullbacks = $event.target.value"
+  <input type="text" [value]="numPullbacks" (input)="setNumPullbacks($event.target.value)"
     style="max-width: 40px; margin-right: 4px">
-  <button (click)="generateLamination()">Render Lamination</button>
+  <button (click)="generateLamination()">Refresh</button>
 </div>
 
 <br/>
