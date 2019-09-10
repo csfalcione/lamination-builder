@@ -81,7 +81,7 @@ export const makeSvgRenderer = (settings: RenderSettings): LaminationRenderer<st
     const chords = laminationState.lamination
       .map((polygon: Polygon) => tag('path', {
         stroke: settings.chordColor,
-        fill: settings.polygonColor,
+        fill: polygon.points.length > 2 ? settings.polygonColor : 'none',
         'stroke-width': 1,
         transform,
         d: makeSVGPath(polygon, radius, settings.renderHyperbolic)
