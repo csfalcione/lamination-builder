@@ -1,9 +1,13 @@
 import { Component, OnInit, Input, ViewChild, ElementRef } from '@angular/core';
-import { Polygon, NaryFraction, Chord } from 'laminations-lib';
+import { Polygon, NaryFraction } from 'laminations-lib';
 import { RenderSettings, LaminationState } from '../builder-state';
 import { makeCanvasRenderer } from '../lamination-renderer/canvas-renderer';
 
-const displayPoint = (t: NaryFraction) => t.toRational().join('/')
+const displayPoint = (t: NaryFraction) => {
+  const rational = t.toRational().join('/')
+  const naryString = `${t.exactPart.join('')}_${t.repeatingPart.join('')}`
+  return `${naryString} (${rational})`
+}
 
 const displayPolygon = (poly) => {
   return poly.points.map(displayPoint).join(', ')
