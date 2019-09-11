@@ -6,6 +6,17 @@ import { map } from 'rxjs/operators';
 const binary = NaryFraction.factory(2)
 const ternary = NaryFraction.factory(3)
 
+const makeFinalBranch = (branches: BranchRegion[]): BranchRegion => {
+  return makeRegion((p) => !branches.some(branch => branch.isInBranch(p)))
+}
+
+const fillOutBranches = (d: number, branches: BranchRegion[]): BranchRegion[] => {
+  if (branches.length >= d) {
+    return branches
+  }
+  return [...branches, makeFinalBranch(branches)]
+}
+
 
 export const rabbitLamination = (): Observable<LaminationState> => {
   const criticalChord = Chord.new(
@@ -15,12 +26,11 @@ export const rabbitLamination = (): Observable<LaminationState> => {
   const criticalChords = [criticalChord]
 
   const firstRegion = (point: NaryFraction) => criticalChord.inInnerRegion(point) || point.equals(criticalChord.lower)
-  const secondRegion = (point: NaryFraction) => !firstRegion(point)
 
-  const branches: Array<BranchRegion> = [
-    firstRegion,
-    secondRegion,
-  ].map(makeRegion)
+  const branches: Array<BranchRegion> = fillOutBranches(
+      2,
+      [firstRegion,].map(makeRegion)
+  )
 
   const startingTriangle = Polygon.new([
     binary([], [0, 0, 1]), // 1/7
@@ -53,13 +63,11 @@ export const rabbitLamination_ternary = (): Observable<LaminationState> => {
 
   const firstRegion = (p) => criticalA.inInnerRegion(p) || p.equals(pointA)
   const secondRegion = (p) => criticalB.inInnerRegion(p) || p.equals(pointB)
-  const thirdRegion = (p) => !firstRegion(p) && !secondRegion(p)
 
-  const branches: Array<BranchRegion> = [
+  const branches: Array<BranchRegion> = fillOutBranches(3, [
     firstRegion,
     secondRegion,
-    thirdRegion,
-  ].map(makeRegion)
+  ].map(makeRegion))
 
   const startingTriangle = Polygon.new([
     ternary([], [0, 0, 1]),
@@ -133,13 +141,11 @@ export const criticalTriangleGap_ternary = (): Observable<LaminationState> => {
 
   const firstRegion = (p) => criticalA.inInnerRegion(p) || p.equals(pointA)
   const secondRegion = (p) => criticalB.inInnerRegion(p) || p.equals(pointB)
-  const thirdRegion = (p) => !firstRegion(p) && !secondRegion(p)
 
-  const branches: Array<BranchRegion> = [
+  const branches: Array<BranchRegion> = fillOutBranches(3, [
     firstRegion,
     secondRegion,
-    thirdRegion,
-  ].map(makeRegion)
+  ].map(makeRegion))
 
   const initialChords = [
     Chord.new(ternary([], [0, 1, 1]), ternary([], [0, 2, 0])),
@@ -171,13 +177,11 @@ export const criticalTriangleGapIRT_ternary = (): Observable<LaminationState> =>
 
   const firstRegion = (p) => criticalA.inOuterRegion(p) || p.equals(pointD)
   const secondRegion = (p) => criticalB.inInnerRegion(p) || p.equals(pointC)
-  const thirdRegion = (p) => !firstRegion(p) && !secondRegion(p)
 
-  const branches: Array<BranchRegion> = [
+  const branches: Array<BranchRegion> = fillOutBranches(3, [
     firstRegion,
     secondRegion,
-    thirdRegion,
-  ].map(makeRegion)
+  ].map(makeRegion))
 
   const initialChords = [
     Chord.new(pointA, pointB),
