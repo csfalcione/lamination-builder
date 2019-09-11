@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { RenderSettings, LaminationState } from '../builder-state';
-import { take } from 'rxjs/operators'
+import { take, scan } from 'rxjs/operators'
 import { makeSvgRenderer } from '../lamination-renderer/svg-renderer';
 import { saveAs } from 'file-saver'
 import * as examples from '../example-laminations';
@@ -45,6 +45,12 @@ export class LaminationBuilderComponent implements OnInit {
     const iterations = this.numPullbacks + 1
     examples.criticalTriangleGapIRT_ternary()
       .pipe(
+        scan((state, newState): LaminationState => {
+          return {
+            lamination: [...state.lamination, ...newState.lamination],
+            criticalChords: newState.criticalChords,
+          }
+        }, this.initialLaminationState()),
         take(iterations)
       )
       .subscribe(state => {
