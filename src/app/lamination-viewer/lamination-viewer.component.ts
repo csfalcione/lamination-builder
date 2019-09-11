@@ -5,7 +5,8 @@ import { makeCanvasRenderer } from '../lamination-renderer/canvas-renderer';
 
 const displayPoint = (t: NaryFraction) => {
   const rational = t.toRational().join('/')
-  const naryString = `${t.exactPart.join('')}_${t.repeatingPart.join('')}`
+  const joiner = t.base < 10 ? '' : ','
+  const naryString = `${t.exactPart.join(joiner)}_${t.repeatingPart.join(joiner)}`
   return `${naryString} (${rational})`
 }
 
