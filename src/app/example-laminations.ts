@@ -97,13 +97,11 @@ export const ternarySymmetricLamination = (): Observable<LaminationState> => {
 
   const firstRegion = (point: NaryFraction) => criticalA.inOuterRegion(point) || point.equals(criticalA.lower)
   const secondRegion = (point: NaryFraction) => criticalB.inInnerRegion(point) || point.equals(criticalB.upper)
-  const thirdRegion = (point: NaryFraction) => !(firstRegion(point) || secondRegion(point))
 
-  const branches: Array<BranchRegion> = [
+  const branches: Array<BranchRegion> = fillOutBranches(3, [
     firstRegion,
     secondRegion,
-    thirdRegion
-  ].map(makeRegion)
+  ].map(makeRegion))
 
   const firstLeaves = [
     Chord.new(
@@ -184,19 +182,24 @@ export const criticalTriangleGapIRT_ternary = (): Observable<LaminationState> =>
   ].map(makeRegion))
 
   const initialChords = [
-    Chord.new(pointA, pointB),
-    Chord.new(ternary([], [0, 1, 1]), ternary([], [0, 2, 0])),
-    Chord.new(ternary([], [1, 1, 0]), ternary([], [2, 0, 0])),
+    Polygon.new([
+      pointA,
+      pointB,
+      ternary([], [2, 0, 1])
+    ]),
 
-    Chord.new(ternary([], [0, 1, 1]), ternary([], [0, 1, 2])),
-    Chord.new(ternary([], [0, 1, 2]), ternary([], [0, 2, 0])),
-    
-    Chord.new(ternary([], [1, 1, 0]), ternary([], [1, 2, 0])),
-    Chord.new(ternary([], [1, 2, 0]), ternary([], [2, 0, 0])),
+    Polygon.new([
+      ternary([], [0, 1, 1]),
+      ternary([], [0, 2, 0]),
+      ternary([], [0, 1, 2])
+    ]),
 
-    Chord.new(pointB, ternary([], [2, 0, 1])),
-    Chord.new(ternary([], [2, 0, 1]), pointA),
-  ].map(Polygon.fromChord)
+    Polygon.new([
+      ternary([], [1, 1, 0]),
+      ternary([], [2, 0, 0]),
+      ternary([], [1, 2, 0])
+    ])
+  ]
 
   return from(PullbackLamination.iterates(initialChords, branches))
     .pipe(
