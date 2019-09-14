@@ -5,6 +5,7 @@ import { map } from 'rxjs/operators';
 
 const binary = NaryFraction.factory(2)
 const ternary = NaryFraction.factory(3)
+const quaternary = NaryFraction.factory(4)
 
 interface LaminationDefinition {
   initialLeaves: Polygon[],
@@ -195,3 +196,78 @@ export const criticalTriangleGapIRT_ternary = (): LaminationDefinition => {
 
   return {initialLeaves, criticalChords, branches}
 }
+
+export const irq_fat_quaternary = (): LaminationDefinition => {
+  const pointA = quaternary([0], [2, 3, 3])
+  const pointB = quaternary([], [0, 3, 0])
+  const pointC = quaternary([1], [3, 0, 0])
+  const pointD = quaternary([1], [3, 0, 2])
+  const pointE = quaternary([], [2, 3, 0])
+  const pointF = quaternary([], [3, 2, 3])
+
+  const criticalA = Chord.new(pointA, pointF)
+  const criticalB = Chord.new(pointB, pointC)
+  const criticalC = Chord.new(pointD, pointE)
+  const criticalChords = [
+    criticalA,
+    criticalB,
+    criticalC,
+  ]
+
+  const firstRegion = (p) => criticalA.inOuterRegion(p) || p.equals(pointF)
+  const secondRegion = (p) => criticalB.inInnerRegion(p) || p.equals(pointB)
+  const thirdRegion = (p) => criticalC.inInnerRegion(p) || p.equals(pointE)
+
+  const branches: Array<BranchRegion> = fillOutBranches(4, [
+    firstRegion,
+    secondRegion,
+    thirdRegion
+  ].map(makeRegion))
+
+  const middleSquare = Polygon.new([
+    pointB,
+    quaternary([], [1, 3, 0]),
+    pointE,
+    pointF,
+  ])
+
+  return {initialLeaves: [middleSquare], criticalChords, branches}
+}
+
+export const irq_thin_quaternary = (): LaminationDefinition => {
+  const pointA = quaternary([], [0, 1, 0])
+  const pointB = quaternary([], [1, 0, 0])
+  const pointC = quaternary([2], [0, 0, 1])
+  const pointD = quaternary([], [2, 0, 0])
+  const pointE = quaternary([3], [0, 0, 2])
+  const pointF = quaternary([3], [1, 0, 0])
+
+  const criticalA = Chord.new(pointA, pointF)
+  const criticalB = Chord.new(pointB, pointC)
+  const criticalC = Chord.new(pointD, pointE)
+  const criticalChords = [
+    criticalA,
+    criticalB,
+    criticalC,
+  ]
+
+  const firstRegion = (p) => criticalA.inOuterRegion(p) || p.equals(pointF)
+  const secondRegion = (p) => criticalB.inInnerRegion(p) || p.equals(pointC)
+  const thirdRegion = (p) => criticalC.inInnerRegion(p) || p.equals(pointE)
+
+  const branches: Array<BranchRegion> = fillOutBranches(4, [
+    firstRegion,
+    secondRegion,
+    thirdRegion
+  ].map(makeRegion))
+
+  const middleSquare = Polygon.new([
+    quaternary([], [0, 3, 3]),
+    pointB,
+    pointD,
+    quaternary([], [3, 0, 0]),
+  ])
+
+  return {initialLeaves: [middleSquare], criticalChords, branches}
+}
+
