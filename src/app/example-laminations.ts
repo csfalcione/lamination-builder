@@ -164,7 +164,7 @@ export const criticalTriangleGapIRT_ternary = (): Observable<LaminationState> =>
   const pointA = ternary([], [0, 0, 2])
   const pointB = ternary([], [1, 0, 1])
   const pointC = ternary([2], [0, 1, 1])
-  const pointD = ternary([2], [0, 2, 1])
+  const pointD = ternary([2], [0, 2, 0])
 
   const criticalA = Chord.new(pointA, pointD)
   const criticalB = Chord.new(pointB, pointC)
