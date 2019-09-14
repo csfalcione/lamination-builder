@@ -1,8 +1,11 @@
 
 <div>
   <strong style="margin-right: 4px">Pullbacks:</strong>
-  <input type="text" [value]="numPullbacks" (input)="setNumPullbacks($event.target.value)"
+  <input type="number" [value]="numPullbacks" (input)="setNumPullbacks($event.target.value)"
     style="max-width: 40px; margin-right: 4px">
+  <strong style="margin-right: 4px">Preview Size:</strong>
+  <input type="number" [(ngModel)]="renderSettings.size"
+    style="max-width: 60px; margin-right: 4px">
   <button (click)="generateLamination()">Refresh</button>
   <button (click)="saveSvg()">Export SVG</button>
 </div>
