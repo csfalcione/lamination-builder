@@ -6,6 +6,22 @@ import { map } from 'rxjs/operators';
 const binary = NaryFraction.factory(2)
 const ternary = NaryFraction.factory(3)
 
+interface LaminationDefinition {
+  initialLeaves: Polygon[],
+  criticalChords: Chord[],
+  branches: BranchRegion[],
+}
+
+export const pullbackObservable = ({initialLeaves, criticalChords, branches}: LaminationDefinition): Observable<LaminationState> => {
+  return from(PullbackLamination.iterates(initialLeaves, branches))
+  .pipe(
+    map(lamination => ({
+      lamination,
+      criticalChords,
+    }))
+  )
+}
+
 const makeFinalBranch = (branches: BranchRegion[]): BranchRegion => {
   return makeRegion((p) => !branches.some(branch => branch.isInBranch(p)))
 }
@@ -18,7 +34,7 @@ const fillOutBranches = (d: number, branches: BranchRegion[]): BranchRegion[] =>
 }
 
 
-export const rabbitLamination = (): Observable<LaminationState> => {
+export const rabbitLamination = (): LaminationDefinition => {
   const criticalChord = Chord.new(
     binary([], [0, 0, 1]), // 1/7
     binary([1], [0, 1, 0]) // 9/14
@@ -38,16 +54,10 @@ export const rabbitLamination = (): Observable<LaminationState> => {
     binary([], [1, 0, 0]), // 4/7
   ])
 
-  return from(PullbackLamination.iterates([startingTriangle], branches))
-    .pipe(
-      map(lamination => ({
-        lamination,
-        criticalChords,
-      }))
-    )
+  return {initialLeaves: [startingTriangle], criticalChords, branches}
 }
 
-export const rabbitLamination_ternary = (): Observable<LaminationState> => {
+export const rabbitLamination_ternary = (): LaminationDefinition => {
   const pointA = ternary([], [0, 0, 1])
   const pointB = ternary([1], [0, 1, 0])
   const pointC = ternary([2], [0, 1, 0])
@@ -75,16 +85,10 @@ export const rabbitLamination_ternary = (): Observable<LaminationState> => {
     ternary([], [1, 0, 0]),
   ])
 
-  return from(PullbackLamination.iterates([startingTriangle], branches))
-    .pipe(
-      map(lamination => ({
-        lamination,
-        criticalChords,
-      }))
-    )
+  return {initialLeaves: [startingTriangle], criticalChords, branches}
 }
 
-export const ternarySymmetricLamination = (): Observable<LaminationState> => {
+export const ternarySymmetricLamination = (): LaminationDefinition => {
   const criticalA = Chord.new(
     ternary([], [0, 1]), // 1/8
     ternary([2], [1, 0]) // 19/24
@@ -103,7 +107,7 @@ export const ternarySymmetricLamination = (): Observable<LaminationState> => {
     secondRegion,
   ].map(makeRegion))
 
-  const firstLeaves = [
+  const initialLeaves = [
     Chord.new(
       ternary([], [0, 1]), // 1/8
       ternary([], [2, 1]) // 7/8
@@ -114,16 +118,10 @@ export const ternarySymmetricLamination = (): Observable<LaminationState> => {
     )
   ].map(Polygon.fromChord)
 
-  return from(PullbackLamination.iterates(firstLeaves, branches))
-    .pipe(
-      map(lamination => ({
-        lamination,
-        criticalChords,
-      }))
-    )
+  return {initialLeaves, criticalChords, branches}
 }
 
-export const criticalTriangleGap_ternary = (): Observable<LaminationState> => {
+export const criticalTriangleGap_ternary = (): LaminationDefinition => {
   const pointA = ternary([], [0, 0, 2])
   const pointB = ternary([1], [0, 2, 0])
   const pointC = ternary([2], [0, 2, 0])
@@ -145,22 +143,16 @@ export const criticalTriangleGap_ternary = (): Observable<LaminationState> => {
     secondRegion,
   ].map(makeRegion))
 
-  const initialChords = [
+  const initialLeaves = [
     Chord.new(ternary([], [0, 1, 1]), ternary([], [0, 2, 0])),
     Chord.new(ternary([], [0, 0, 2]), ternary([], [1, 0, 1])),
     Chord.new(ternary([], [1, 1, 0]), ternary([], [2, 0, 0])),
   ].map(Polygon.fromChord)
 
-  return from(PullbackLamination.iterates(initialChords, branches))
-    .pipe(
-      map(lamination => ({
-        lamination,
-        criticalChords,
-      }))
-    )
+  return {initialLeaves, criticalChords, branches}
 }
 
-export const criticalTriangleGapIRT_ternary = (): Observable<LaminationState> => {
+export const criticalTriangleGapIRT_ternary = (): LaminationDefinition => {
   const pointA = ternary([], [0, 0, 2])
   const pointB = ternary([], [1, 0, 1])
   const pointC = ternary([2], [0, 1, 1])
@@ -181,7 +173,7 @@ export const criticalTriangleGapIRT_ternary = (): Observable<LaminationState> =>
     secondRegion,
   ].map(makeRegion))
 
-  const initialChords = [
+  const initialLeaves = [
     Polygon.new([
       pointA,
       pointB,
@@ -201,11 +193,5 @@ export const criticalTriangleGapIRT_ternary = (): Observable<LaminationState> =>
     ])
   ]
 
-  return from(PullbackLamination.iterates(initialChords, branches))
-    .pipe(
-      map(lamination => ({
-        lamination,
-        criticalChords,
-      }))
-    )
+  return {initialLeaves, criticalChords, branches}
 }

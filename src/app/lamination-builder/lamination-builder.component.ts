@@ -43,7 +43,7 @@ export class LaminationBuilderComponent implements OnInit {
 
   generateLamination() {
     const iterations = this.numPullbacks + 1
-    examples.criticalTriangleGapIRT_ternary()
+    examples.pullbackObservable(examples.criticalTriangleGapIRT_ternary())
       .pipe(
         scan((state, newState): LaminationState => {
           return {
