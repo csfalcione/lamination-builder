@@ -214,9 +214,9 @@ export const irq_fat_quaternary = (): LaminationDefinition => {
     criticalC,
   ]
 
-  const firstRegion = (p) => criticalA.inOuterRegion(p) || p.equals(pointF)
-  const secondRegion = (p) => criticalB.inInnerRegion(p) || p.equals(pointB)
-  const thirdRegion = (p) => criticalC.inInnerRegion(p) || p.equals(pointE)
+  const firstRegion = (p) => criticalA.inOuterRegion(p) || p.equals(pointA)
+  const secondRegion = (p) => criticalB.inInnerRegion(p) || p.equals(pointC)
+  const thirdRegion = (p) => criticalC.inInnerRegion(p) || p.equals(pointD)
 
   const branches: Array<BranchRegion> = fillOutBranches(4, [
     firstRegion,
