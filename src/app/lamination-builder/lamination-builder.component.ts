@@ -3,6 +3,7 @@ import { RenderSettings, LaminationState } from '../builder-state';
 import { take, scan } from 'rxjs/operators'
 import { makeSvgRenderer } from '../lamination-renderer/svg-renderer';
 import { saveAs } from 'file-saver'
+import { pullbackObservable } from '../example-laminations'
 import * as examples from '../example-laminations';
 
 @Component({
@@ -13,12 +14,16 @@ import * as examples from '../example-laminations';
 export class LaminationBuilderComponent implements OnInit {
 
   renderSettings: RenderSettings = this.initialRenderSettings()
-  laminationState: LaminationState = this.initialLaminationState()
+  laminationState: LaminationState = this.laminationStateIdentity()
   laminationName = 'lamination'
 
   numPullbacks = 3
 
   constructor() { }
+
+  laminationDefinition() {
+    return examples.irq_fat_quaternary()
+  }
 
   ngOnInit() {
     setTimeout(() => this.generateLamination())
@@ -43,14 +48,17 @@ export class LaminationBuilderComponent implements OnInit {
 
   generateLamination() {
     const iterations = this.numPullbacks + 1
-    examples.pullbackObservable(examples.irq_thin_quaternary())
+
+    const addLaminationStates = (a: LaminationState, b: LaminationState): LaminationState => {
+      return {
+        lamination: [...a.lamination, ...b.lamination],
+        criticalChords: b.criticalChords,
+      }
+    }
+
+    pullbackObservable(this.laminationDefinition())
       .pipe(
-        scan((state, newState): LaminationState => {
-          return {
-            lamination: [...state.lamination, ...newState.lamination],
-            criticalChords: newState.criticalChords,
-          }
-        }, this.initialLaminationState()),
+        scan(addLaminationStates, this.laminationStateIdentity()),
         take(iterations)
       )
       .subscribe(state => {
@@ -58,7 +66,7 @@ export class LaminationBuilderComponent implements OnInit {
       })
   }
 
-  initialLaminationState(): LaminationState {
+  laminationStateIdentity(): LaminationState {
     return {
       lamination: [],
       criticalChords: [],
