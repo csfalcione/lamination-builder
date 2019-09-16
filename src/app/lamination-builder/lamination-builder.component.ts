@@ -17,7 +17,7 @@ export class LaminationBuilderComponent implements OnInit {
   laminationState: LaminationState = this.laminationStateIdentity()
   laminationName = 'lamination'
 
-  numPullbacks = 3
+  numPullbacks = 0
 
   constructor() { }
 
