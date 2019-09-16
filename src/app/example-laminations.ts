@@ -42,7 +42,7 @@ export const rabbitLamination = (): LaminationDefinition => {
   )
   const criticalChords = [criticalChord]
 
-  const firstRegion = (point: NaryFraction) => criticalChord.inInnerRegion(point) || point.equals(criticalChord.lower)
+  const firstRegion = (point: NaryFraction) => criticalChord.contains(point) || point.equals(criticalChord.lower)
 
   const branches: Array<BranchRegion> = fillOutBranches(
       2,
@@ -72,8 +72,8 @@ export const rabbitLamination_ternary = (): LaminationDefinition => {
     criticalC,
   ]
 
-  const firstRegion = (p) => criticalA.inInnerRegion(p) || p.equals(pointA)
-  const secondRegion = (p) => criticalB.inInnerRegion(p) || p.equals(pointB)
+  const firstRegion = (p) => criticalA.contains(p) || p.equals(pointA)
+  const secondRegion = (p) => criticalB.contains(p) || p.equals(pointB)
 
   const branches: Array<BranchRegion> = fillOutBranches(3, [
     firstRegion,
@@ -100,8 +100,8 @@ export const ternarySymmetricLamination = (): LaminationDefinition => {
   )
   const criticalChords = [criticalA, criticalB]
 
-  const firstRegion = (point: NaryFraction) => criticalA.inOuterRegion(point) || point.equals(criticalA.lower)
-  const secondRegion = (point: NaryFraction) => criticalB.inInnerRegion(point) || point.equals(criticalB.upper)
+  const firstRegion = (point: NaryFraction) => criticalA.contains(point) || point.equals(criticalA.lower)
+  const secondRegion = (point: NaryFraction) => criticalB.contains(point) || point.equals(criticalB.upper)
 
   const branches: Array<BranchRegion> = fillOutBranches(3, [
     firstRegion,
@@ -136,8 +136,8 @@ export const criticalTriangleGap_ternary = (): LaminationDefinition => {
     criticalC,
   ]
 
-  const firstRegion = (p) => criticalA.inInnerRegion(p) || p.equals(pointA)
-  const secondRegion = (p) => criticalB.inInnerRegion(p) || p.equals(pointB)
+  const firstRegion = (p) => criticalA.contains(p) || p.equals(pointA)
+  const secondRegion = (p) => criticalB.contains(p) || p.equals(pointB)
 
   const branches: Array<BranchRegion> = fillOutBranches(3, [
     firstRegion,
@@ -166,8 +166,8 @@ export const criticalTriangleGapIRT_ternary = (): LaminationDefinition => {
     criticalB,
   ]
 
-  const firstRegion = (p) => criticalA.inOuterRegion(p) || p.equals(pointD)
-  const secondRegion = (p) => criticalB.inInnerRegion(p) || p.equals(pointC)
+  const firstRegion = (p) => criticalA.contains(p) || p.equals(pointD)
+  const secondRegion = (p) => criticalB.contains(p) || p.equals(pointC)
 
   const branches: Array<BranchRegion> = fillOutBranches(3, [
     firstRegion,
@@ -214,9 +214,9 @@ export const irq_fat_quaternary = (): LaminationDefinition => {
     criticalC,
   ]
 
-  const firstRegion = (p) => criticalA.inOuterRegion(p) || p.equals(pointA)
-  const secondRegion = (p) => criticalB.inInnerRegion(p) || p.equals(pointC)
-  const thirdRegion = (p) => criticalC.inInnerRegion(p) || p.equals(pointD)
+  const firstRegion = (p) => criticalA.contains(p) || p.equals(pointA)
+  const secondRegion = (p) => criticalB.contains(p) || p.equals(pointC)
+  const thirdRegion = (p) => criticalC.contains(p) || p.equals(pointD)
 
   const branches: Array<BranchRegion> = fillOutBranches(4, [
     firstRegion,
@@ -251,9 +251,9 @@ export const irq_thin_quaternary = (): LaminationDefinition => {
     criticalC,
   ]
 
-  const firstRegion = (p) => criticalA.inOuterRegion(p) || p.equals(pointF)
-  const secondRegion = (p) => criticalB.inInnerRegion(p) || p.equals(pointC)
-  const thirdRegion = (p) => criticalC.inInnerRegion(p) || p.equals(pointE)
+  const firstRegion = (p) => criticalA.contains(p) || p.equals(pointF)
+  const secondRegion = (p) => criticalB.contains(p) || p.equals(pointC)
+  const thirdRegion = (p) => criticalC.contains(p) || p.equals(pointE)
 
   const branches: Array<BranchRegion> = fillOutBranches(4, [
     firstRegion,
