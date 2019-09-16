@@ -3,9 +3,9 @@ import { Observable, from } from 'rxjs';
 import { NaryFraction, Chord, BranchRegion, makeRegion, Polygon, PullbackLamination } from 'laminations-lib';
 import { map } from 'rxjs/operators';
 
-const binary = NaryFraction.factory(2)
-const ternary = NaryFraction.factory(3)
-const quaternary = NaryFraction.factory(4)
+const binary = NaryFraction.parseFactory(2)
+const ternary = NaryFraction.parseFactory(3)
+const quaternary = NaryFraction.parseFactory(4)
 
 interface LaminationDefinition {
   initialLeaves: Polygon[],
@@ -37,8 +37,8 @@ const fillOutBranches = (d: number, branches: BranchRegion[]): BranchRegion[] =>
 
 export const rabbitLamination = (): LaminationDefinition => {
   const criticalChord = Chord.new(
-    binary([], [0, 0, 1]), // 1/7
-    binary([1], [0, 1, 0]) // 9/14
+    binary('_001'), // 1/7
+    binary('1_010') // 9/14
   )
   const criticalChords = [criticalChord]
 
@@ -50,18 +50,18 @@ export const rabbitLamination = (): LaminationDefinition => {
   )
 
   const startingTriangle = Polygon.new([
-    binary([], [0, 0, 1]), // 1/7
-    binary([], [0, 1, 0]), // 2/7
-    binary([], [1, 0, 0]), // 4/7
+    binary('_001'), // 1/7
+    binary('_010'), // 2/7
+    binary('_100'), // 4/7
   ])
 
   return {initialLeaves: [startingTriangle], criticalChords, branches}
 }
 
 export const rabbitLamination_ternary = (): LaminationDefinition => {
-  const pointA = ternary([], [0, 0, 1])
-  const pointB = ternary([1], [0, 1, 0])
-  const pointC = ternary([2], [0, 1, 0])
+  const pointA = ternary('_001')
+  const pointB = ternary('1_010')
+  const pointC = ternary('2_010')
 
   const criticalA = Chord.new(pointA, pointB)
   const criticalB = Chord.new(pointB, pointC)
@@ -81,9 +81,9 @@ export const rabbitLamination_ternary = (): LaminationDefinition => {
   ].map(makeRegion))
 
   const startingTriangle = Polygon.new([
-    ternary([], [0, 0, 1]),
-    ternary([], [0, 1, 0]),
-    ternary([], [1, 0, 0]),
+    ternary('_001'),
+    ternary('_010'),
+    ternary('_100'),
   ])
 
   return {initialLeaves: [startingTriangle], criticalChords, branches}
@@ -91,12 +91,12 @@ export const rabbitLamination_ternary = (): LaminationDefinition => {
 
 export const ternarySymmetricLamination = (): LaminationDefinition => {
   const criticalA = Chord.new(
-    ternary([], [0, 1]), // 1/8
-    ternary([2], [1, 0]) // 19/24
+    ternary('_01'), // 1/8
+    ternary('2_10') // 19/24
   )
   const criticalB = Chord.new(
-    ternary([0], [2, 1]), // 7/24
-    ternary([], [1, 2]) // 5/8
+    ternary('0_21'), // 7/24
+    ternary('_12') // 5/8
   )
   const criticalChords = [criticalA, criticalB]
 
@@ -110,12 +110,12 @@ export const ternarySymmetricLamination = (): LaminationDefinition => {
 
   const initialLeaves = [
     Chord.new(
-      ternary([], [0, 1]), // 1/8
-      ternary([], [2, 1]) // 7/8
+      ternary('_01'), // 1/8
+      ternary('_21') // 7/8
     ),
     Chord.new(
-      ternary([], [1, 0]), // 3/8
-      ternary([], [1, 2]) // 5/8
+      ternary('_10'), // 3/8
+      ternary('_12') // 5/8
     )
   ].map(Polygon.fromChord)
 
@@ -123,9 +123,9 @@ export const ternarySymmetricLamination = (): LaminationDefinition => {
 }
 
 export const criticalTriangleGap_ternary = (): LaminationDefinition => {
-  const pointA = ternary([], [0, 0, 2])
-  const pointB = ternary([1], [0, 2, 0])
-  const pointC = ternary([2], [0, 2, 0])
+  const pointA = ternary('_002')
+  const pointB = ternary('1_020')
+  const pointC = ternary('2_020')
 
   const criticalA = Chord.new(pointA, pointB)
   const criticalB = Chord.new(pointB, pointC)
@@ -145,19 +145,19 @@ export const criticalTriangleGap_ternary = (): LaminationDefinition => {
   ].map(makeRegion))
 
   const initialLeaves = [
-    Chord.new(ternary([], [0, 1, 1]), ternary([], [0, 2, 0])),
-    Chord.new(ternary([], [0, 0, 2]), ternary([], [1, 0, 1])),
-    Chord.new(ternary([], [1, 1, 0]), ternary([], [2, 0, 0])),
+    Chord.new(ternary('_011'), ternary('_020')),
+    Chord.new(ternary('_002'), ternary('_101')),
+    Chord.new(ternary('_110'), ternary('_200')),
   ].map(Polygon.fromChord)
 
   return {initialLeaves, criticalChords, branches}
 }
 
 export const criticalTriangleGapIRT_ternary = (): LaminationDefinition => {
-  const pointA = ternary([], [0, 0, 2])
-  const pointB = ternary([], [1, 0, 1])
-  const pointC = ternary([2], [0, 1, 1])
-  const pointD = ternary([2], [0, 2, 0])
+  const pointA = ternary('_002')
+  const pointB = ternary('_101')
+  const pointC = ternary('2_011')
+  const pointD = ternary('2_020')
 
   const criticalA = Chord.new(pointA, pointD)
   const criticalB = Chord.new(pointB, pointC)
@@ -178,19 +178,19 @@ export const criticalTriangleGapIRT_ternary = (): LaminationDefinition => {
     Polygon.new([
       pointA,
       pointB,
-      ternary([], [2, 0, 1])
+      ternary('_201')
     ]),
 
     Polygon.new([
-      ternary([], [0, 1, 1]),
-      ternary([], [0, 2, 0]),
-      ternary([], [0, 1, 2])
+      ternary('_011'),
+      ternary('_020'),
+      ternary('_012')
     ]),
 
     Polygon.new([
-      ternary([], [1, 1, 0]),
-      ternary([], [2, 0, 0]),
-      ternary([], [1, 2, 0])
+      ternary('_110'),
+      ternary('_200'),
+      ternary('_120')
     ])
   ]
 
@@ -198,12 +198,12 @@ export const criticalTriangleGapIRT_ternary = (): LaminationDefinition => {
 }
 
 export const irq_fat_quaternary = (): LaminationDefinition => {
-  const pointA = quaternary([0], [2, 3, 3])
-  const pointB = quaternary([], [0, 3, 0])
-  const pointC = quaternary([1], [3, 0, 0])
-  const pointD = quaternary([1], [3, 0, 2])
-  const pointE = quaternary([], [2, 3, 0])
-  const pointF = quaternary([], [3, 2, 3])
+  const pointA = quaternary('0_233')
+  const pointB = quaternary('_030')
+  const pointC = quaternary('1_300')
+  const pointD = quaternary('1_302')
+  const pointE = quaternary('_230')
+  const pointF = quaternary('_323')
 
   const criticalA = Chord.new(pointA, pointF)
   const criticalB = Chord.new(pointB, pointC)
@@ -226,7 +226,7 @@ export const irq_fat_quaternary = (): LaminationDefinition => {
 
   const middleSquare = Polygon.new([
     pointB,
-    quaternary([], [1, 3, 0]),
+    quaternary('_130'),
     pointE,
     pointF,
   ])
@@ -235,12 +235,12 @@ export const irq_fat_quaternary = (): LaminationDefinition => {
 }
 
 export const irq_thin_quaternary = (): LaminationDefinition => {
-  const pointA = quaternary([], [0, 1, 0])
-  const pointB = quaternary([], [1, 0, 0])
-  const pointC = quaternary([2], [0, 0, 1])
-  const pointD = quaternary([], [2, 0, 0])
-  const pointE = quaternary([3], [0, 0, 2])
-  const pointF = quaternary([3], [1, 0, 0])
+  const pointA = quaternary('_010')
+  const pointB = quaternary('_100')
+  const pointC = quaternary('2_001')
+  const pointD = quaternary('_200')
+  const pointE = quaternary('3_002')
+  const pointF = quaternary('3_100')
 
   const criticalA = Chord.new(pointA, pointF)
   const criticalB = Chord.new(pointB, pointC)
@@ -262,10 +262,10 @@ export const irq_thin_quaternary = (): LaminationDefinition => {
   ].map(makeRegion))
 
   const middleSquare = Polygon.new([
-    quaternary([], [0, 3, 3]),
+    quaternary('_033'),
     pointB,
     pointD,
-    quaternary([], [3, 0, 0]),
+    quaternary('_300'),
   ])
 
   return {initialLeaves: [middleSquare], criticalChords, branches}
