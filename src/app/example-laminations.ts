@@ -23,6 +23,11 @@ export const pullbackObservable = ({initialLeaves, criticalChords, branches}: La
   )
 }
 
+const branchFromChord = (chord: Chord, ...points: NaryFraction[]): BranchRegion => {
+  const identifier = (point) => chord.contains(point) || points.some(boundary => point.equals(boundary))
+  return makeRegion(identifier)
+}
+
 const makeFinalBranch = (branches: BranchRegion[]): BranchRegion => {
   return makeRegion((p) => !branches.some(branch => branch.isInBranch(p)))
 }
@@ -42,12 +47,9 @@ export const rabbitLamination = (): LaminationDefinition => {
   )
   const criticalChords = [criticalChord]
 
-  const firstRegion = (point: NaryFraction) => criticalChord.contains(point) || point.equals(criticalChord.lower)
-
-  const branches: Array<BranchRegion> = fillOutBranches(
-      2,
-      [firstRegion,].map(makeRegion)
-  )
+  const branches: Array<BranchRegion> = fillOutBranches(2, [
+    branchFromChord(criticalChord, criticalChord.lower)
+  ])
 
   const startingTriangle = Polygon.new([
     binary('_001'), // 1/7
@@ -72,13 +74,10 @@ export const rabbitLamination_ternary = (): LaminationDefinition => {
     criticalC,
   ]
 
-  const firstRegion = (p) => criticalA.contains(p) || p.equals(pointA)
-  const secondRegion = (p) => criticalB.contains(p) || p.equals(pointB)
-
   const branches: Array<BranchRegion> = fillOutBranches(3, [
-    firstRegion,
-    secondRegion,
-  ].map(makeRegion))
+    branchFromChord(criticalA, pointA),
+    branchFromChord(criticalB, pointB),
+  ])
 
   const startingTriangle = Polygon.new([
     ternary('_001'),
@@ -100,13 +99,10 @@ export const ternarySymmetricLamination = (): LaminationDefinition => {
   )
   const criticalChords = [criticalA, criticalB]
 
-  const firstRegion = (point: NaryFraction) => criticalA.contains(point) || point.equals(criticalA.lower)
-  const secondRegion = (point: NaryFraction) => criticalB.contains(point) || point.equals(criticalB.upper)
-
   const branches: Array<BranchRegion> = fillOutBranches(3, [
-    firstRegion,
-    secondRegion,
-  ].map(makeRegion))
+    branchFromChord(criticalA, criticalA.lower),
+    branchFromChord(criticalB, criticalB.upper),
+  ])
 
   const initialLeaves = [
     Chord.new(
@@ -136,13 +132,10 @@ export const criticalTriangleGap_ternary = (): LaminationDefinition => {
     criticalC,
   ]
 
-  const firstRegion = (p) => criticalA.contains(p) || p.equals(pointA)
-  const secondRegion = (p) => criticalB.contains(p) || p.equals(pointB)
-
   const branches: Array<BranchRegion> = fillOutBranches(3, [
-    firstRegion,
-    secondRegion,
-  ].map(makeRegion))
+    branchFromChord(criticalA, pointA),
+    branchFromChord(criticalB, pointB),
+  ])
 
   const initialLeaves = [
     Chord.new(ternary('_011'), ternary('_020')),
@@ -166,13 +159,10 @@ export const criticalTriangleGapIRT_ternary = (): LaminationDefinition => {
     criticalB,
   ]
 
-  const firstRegion = (p) => criticalA.contains(p) || p.equals(pointD)
-  const secondRegion = (p) => criticalB.contains(p) || p.equals(pointC)
-
   const branches: Array<BranchRegion> = fillOutBranches(3, [
-    firstRegion,
-    secondRegion,
-  ].map(makeRegion))
+    branchFromChord(criticalA, pointD),
+    branchFromChord(criticalB, pointC),
+  ])
 
   const initialLeaves = [
     Polygon.new([
@@ -214,15 +204,11 @@ export const irq_fat_quaternary = (): LaminationDefinition => {
     criticalC,
   ]
 
-  const firstRegion = (p) => criticalA.contains(p) || p.equals(pointA)
-  const secondRegion = (p) => criticalB.contains(p) || p.equals(pointC)
-  const thirdRegion = (p) => criticalC.contains(p) || p.equals(pointD)
-
   const branches: Array<BranchRegion> = fillOutBranches(4, [
-    firstRegion,
-    secondRegion,
-    thirdRegion
-  ].map(makeRegion))
+    branchFromChord(criticalA, pointA),
+    branchFromChord(criticalB, pointC),
+    branchFromChord(criticalC, pointD),
+  ])
 
   const middleSquare = Polygon.new([
     pointB,
@@ -249,17 +235,13 @@ export const irq_thin_quaternary = (): LaminationDefinition => {
     criticalA,
     criticalB,
     criticalC,
-  ]
-
-  const firstRegion = (p) => criticalA.contains(p) || p.equals(pointF)
-  const secondRegion = (p) => criticalB.contains(p) || p.equals(pointC)
-  const thirdRegion = (p) => criticalC.contains(p) || p.equals(pointE)
+  ]  
 
   const branches: Array<BranchRegion> = fillOutBranches(4, [
-    firstRegion,
-    secondRegion,
-    thirdRegion
-  ].map(makeRegion))
+    branchFromChord(criticalA, pointF),
+    branchFromChord(criticalB, pointC),
+    branchFromChord(criticalC, pointE),
+  ])
 
   const middleSquare = Polygon.new([
     quaternary('_033'),
