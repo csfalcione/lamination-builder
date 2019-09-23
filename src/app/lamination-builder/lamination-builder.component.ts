@@ -22,7 +22,7 @@ export class LaminationBuilderComponent implements OnInit {
   constructor() { }
 
   laminationDefinition() {
-    return examples.irq_fat_quaternary()
+    return examples.never_close_quintary()
   }
 
   ngOnInit() {

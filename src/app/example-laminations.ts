@@ -6,6 +6,7 @@ import { map } from 'rxjs/operators';
 const binary = NaryFraction.parseFactory(2)
 const ternary = NaryFraction.parseFactory(3)
 const quaternary = NaryFraction.parseFactory(4)
+const quintary = NaryFraction.parseFactory(5)
 
 interface LaminationDefinition {
   initialLeaves: Polygon[],
@@ -47,7 +48,7 @@ export const rabbitLamination = (): LaminationDefinition => {
   )
   const criticalChords = [criticalChord]
 
-  const branches: Array<BranchRegion> = fillOutBranches(2, [
+  const branches: BranchRegion[] = fillOutBranches(2, [
     branchFromChord(criticalChord, criticalChord.lower)
   ])
 
@@ -74,7 +75,7 @@ export const rabbitLamination_ternary = (): LaminationDefinition => {
     criticalC,
   ]
 
-  const branches: Array<BranchRegion> = fillOutBranches(3, [
+  const branches: BranchRegion[] = fillOutBranches(3, [
     branchFromChord(criticalA, pointA),
     branchFromChord(criticalB, pointB),
   ])
@@ -99,7 +100,7 @@ export const ternarySymmetricLamination = (): LaminationDefinition => {
   )
   const criticalChords = [criticalA, criticalB]
 
-  const branches: Array<BranchRegion> = fillOutBranches(3, [
+  const branches: BranchRegion[] = fillOutBranches(3, [
     branchFromChord(criticalA, criticalA.lower),
     branchFromChord(criticalB, criticalB.upper),
   ])
@@ -132,7 +133,7 @@ export const criticalTriangleGap_ternary = (): LaminationDefinition => {
     criticalC,
   ]
 
-  const branches: Array<BranchRegion> = fillOutBranches(3, [
+  const branches: BranchRegion[] = fillOutBranches(3, [
     branchFromChord(criticalA, pointA),
     branchFromChord(criticalB, pointB),
   ])
@@ -159,7 +160,7 @@ export const criticalTriangleGapIRT_ternary = (): LaminationDefinition => {
     criticalB,
   ]
 
-  const branches: Array<BranchRegion> = fillOutBranches(3, [
+  const branches: BranchRegion[] = fillOutBranches(3, [
     branchFromChord(criticalA, pointD),
     branchFromChord(criticalB, pointC),
   ])
@@ -204,7 +205,7 @@ export const irq_fat_quaternary = (): LaminationDefinition => {
     criticalC,
   ]
 
-  const branches: Array<BranchRegion> = fillOutBranches(4, [
+  const branches: BranchRegion[] = fillOutBranches(4, [
     branchFromChord(criticalA, pointA),
     branchFromChord(criticalB, pointC),
     branchFromChord(criticalC, pointD),
@@ -237,7 +238,7 @@ export const irq_thin_quaternary = (): LaminationDefinition => {
     criticalC,
   ]  
 
-  const branches: Array<BranchRegion> = fillOutBranches(4, [
+  const branches: BranchRegion[] = fillOutBranches(4, [
     branchFromChord(criticalA, pointF),
     branchFromChord(criticalB, pointC),
     branchFromChord(criticalC, pointE),
@@ -251,5 +252,56 @@ export const irq_thin_quaternary = (): LaminationDefinition => {
   ])
 
   return {initialLeaves: [middleSquare], criticalChords, branches}
+}
+
+
+export const never_close_quintary = (): LaminationDefinition => {
+  const pointA = quintary('0_033')
+  const pointB = quintary('_033')
+  const pointC = quintary('1_330')
+  const pointD = quintary('_200')
+  const pointE = quintary('3_002')
+  const pointF = quintary('_303')
+  const pointG = quintary('_330')
+  const pointH = quintary('4_303')
+
+  const criticalA = Chord.new(pointA, pointF)
+  const criticalB = Chord.new(pointB, pointC)
+  const criticalC = Chord.new(pointD, pointE)
+  const criticalD = Chord.new(pointG, pointH)
+  const criticalChords = [criticalA, criticalB, criticalC, criticalD]
+
+  // criticalA contains criticalD
+  const branchA_incomplete = branchFromChord(criticalA, pointA)
+  const branchD = branchFromChord(criticalD, pointH)
+  const branchA = makeRegion((p: NaryFraction) => {
+    return branchA_incomplete.isInBranch(p) && !branchD.isInBranch(p)
+  })
+  const branchB = branchFromChord(criticalB, pointC)
+  const branchC = branchFromChord(criticalC, pointE)
+
+  const branches: BranchRegion[] = fillOutBranches(5, [
+    branchA, branchB, branchC, branchD
+  ])
+
+  const bigTriangle = Polygon.new([
+    pointB,
+    pointD,
+    quintary('_300')
+  ])
+
+  const mediumTriangle = Polygon.new([
+    quintary('_020'),
+    quintary('_030'),
+    pointF
+  ])
+
+  const smallTriangle = Polygon.new([
+    quintary('_002'),
+    quintary('_003'),
+    pointG
+  ])
+
+  return {initialLeaves: [bigTriangle, mediumTriangle, smallTriangle], criticalChords, branches}
 }
 
