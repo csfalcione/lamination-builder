@@ -12,6 +12,7 @@ export interface ParsedLamination {
   base: number
   leaves: Polygon[]
   branchSpecs: BranchSpec[]
+  name?: string
 }
 
 export interface LaminationDefinition {
@@ -23,6 +24,7 @@ export interface LaminationDefinition {
     chord: [string, string]
     endpoints: string[]
   }>
+  name?: string
 }
 
 export const parseLaminationDefinition = (def: LaminationDefinition): ParsedLamination => {
@@ -44,6 +46,7 @@ export const parseLaminationDefinition = (def: LaminationDefinition): ParsedLami
     base,
     leaves,
     branchSpecs,
+    name: def.name || 'lamination',
   }
 }
 
@@ -280,6 +283,7 @@ export const never_close_quintary = (): ParsedLamination => {
 }
 
 export const never_close_quintary_def: LaminationDefinition = {
+  name: 'never close (quintary)',
   base: 5,
   leaves: [
     {points: ['_033', '_200', '_300']},

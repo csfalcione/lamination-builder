@@ -21,7 +21,7 @@ export class LaminationBuilderComponent implements OnInit {
 
   constructor() { }
 
-  laminationDefinition() {
+  laminationData() {
     return parseLaminationDefinition(examples.never_close_quintary_def)
   }
 
@@ -41,7 +41,7 @@ export class LaminationBuilderComponent implements OnInit {
   saveSvg() {
     const renderer = makeSvgRenderer(this.renderSettings)
     const svgString = renderer.render(this.laminationState)
-    saveAs(new Blob([svgString]), `${this.laminationName}.svg`, {
+    saveAs(new Blob([svgString]), `${this.laminationName} - pullback ${this.numPullbacks}.svg`, {
       type: 'image/svg+xml'
     })
   }
@@ -56,7 +56,9 @@ export class LaminationBuilderComponent implements OnInit {
       }
     }
 
-    pullbackObservable(this.laminationDefinition())
+    const data = this.laminationData()
+    this.laminationName = data.name
+    pullbackObservable(data)
       .pipe(
         scan(addLaminationStates, this.laminationStateIdentity()),
         take(iterations)
