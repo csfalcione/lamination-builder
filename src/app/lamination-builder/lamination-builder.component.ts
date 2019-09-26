@@ -3,7 +3,7 @@ import { RenderSettings, LaminationState } from '../builder-state';
 import { take, scan } from 'rxjs/operators'
 import { makeSvgRenderer } from '../lamination-renderer/svg-renderer';
 import { saveAs } from 'file-saver'
-import { pullbackObservable } from '../example-laminations'
+import { pullbackObservable, parseLaminationDefinition } from '../example-laminations'
 import * as examples from '../example-laminations';
 
 @Component({
@@ -22,7 +22,7 @@ export class LaminationBuilderComponent implements OnInit {
   constructor() { }
 
   laminationDefinition() {
-    return examples.never_close_quintary()
+    return parseLaminationDefinition(examples.never_close_quintary_def)
   }
 
   ngOnInit() {

@@ -8,15 +8,48 @@ const ternary = NaryFraction.parseFactory(3)
 const quaternary = NaryFraction.parseFactory(4)
 const quintary = NaryFraction.parseFactory(5)
 
-interface LaminationDefinition {
+export interface ParsedLamination {
   base: number
-  initialLeaves: Polygon[]
+  leaves: Polygon[]
   branchSpecs: BranchSpec[]
 }
 
-export const pullbackObservable = ({ initialLeaves, branchSpecs, base }: LaminationDefinition): Observable<LaminationState> => {
+export interface LaminationDefinition {
+  base: number
+  leaves: Array<{
+    points: string[]
+  }>
+  branches: Array<{
+    chord: [string, string]
+    endpoints: string[]
+  }>
+}
+
+export const parseLaminationDefinition = (def: LaminationDefinition): ParsedLamination => {
+  const base = def.base
+  const parsePoint = NaryFraction.parseFactory(base)
+  
+  const leaves = def.leaves.map(poly => Polygon.new(poly.points.map(parsePoint)))
+
+  const branchSpecs = def.branches.map((branchDef) => {
+    const chordPoints = branchDef.chord.map(parsePoint)
+    const chord = Chord.new(chordPoints[0], chordPoints[1])
+
+    const endpoints = branchDef.endpoints.map(parsePoint)
+
+    return makeBranchSpec(chord, ...endpoints)
+  })
+
+  return {
+    base,
+    leaves,
+    branchSpecs,
+  }
+}
+
+export const pullbackObservable = ({ leaves, branchSpecs, base }: ParsedLamination): Observable<LaminationState> => {
   const branches = makeBuilder(base)(branchSpecs)
-  return from(PullbackLamination.iterates(initialLeaves, branches))
+  return from(PullbackLamination.iterates(leaves, branches))
     .pipe(
       map(lamination => ({
         lamination,
@@ -26,7 +59,7 @@ export const pullbackObservable = ({ initialLeaves, branchSpecs, base }: Laminat
 }
 
 
-export const rabbitLamination = (): LaminationDefinition => {
+export const rabbitLamination = (): ParsedLamination => {
   const criticalChord = Chord.new(
     binary('_001'), // 1/7
     binary('1_010') // 9/14
@@ -42,10 +75,10 @@ export const rabbitLamination = (): LaminationDefinition => {
     binary('_100'), // 4/7
   ])
 
-  return { initialLeaves: [startingTriangle], branchSpecs, base: 2 }
+  return { leaves: [startingTriangle], branchSpecs, base: 2 }
 }
 
-export const rabbitLamination_ternary = (): LaminationDefinition => {
+export const rabbitLamination_ternary = (): ParsedLamination => {
   const pointA = ternary('_001')
   const pointB = ternary('1_010')
   const pointC = ternary('2_010')
@@ -66,10 +99,10 @@ export const rabbitLamination_ternary = (): LaminationDefinition => {
     ternary('_100'),
   ])
 
-  return { initialLeaves: [startingTriangle], branchSpecs, base: 3 }
+  return { leaves: [startingTriangle], branchSpecs, base: 3 }
 }
 
-export const ternarySymmetricLamination = (): LaminationDefinition => {
+export const ternarySymmetricLamination = (): ParsedLamination => {
   const criticalA = Chord.new(
     ternary('_01'), // 1/8
     ternary('2_10') // 19/24
@@ -84,7 +117,7 @@ export const ternarySymmetricLamination = (): LaminationDefinition => {
     makeBranchSpec(criticalB, criticalB.upper),
   ]
 
-  const initialLeaves = [
+  const leaves = [
     Chord.new(
       ternary('_01'), // 1/8
       ternary('_21') // 7/8
@@ -95,10 +128,10 @@ export const ternarySymmetricLamination = (): LaminationDefinition => {
     )
   ].map(Polygon.fromChord)
 
-  return { initialLeaves, branchSpecs, base: 3 }
+  return { leaves: leaves, branchSpecs, base: 3 }
 }
 
-export const criticalTriangleGap_ternary = (): LaminationDefinition => {
+export const criticalTriangleGap_ternary = (): ParsedLamination => {
   const pointA = ternary('_002')
   const pointB = ternary('1_020')
   const pointC = ternary('2_020')
@@ -109,16 +142,16 @@ export const criticalTriangleGap_ternary = (): LaminationDefinition => {
     makeBranchSpec(Chord.new(pointC, pointA), pointC),
   ]
 
-  const initialLeaves = [
+  const leaves = [
     Chord.new(ternary('_011'), ternary('_020')),
     Chord.new(ternary('_002'), ternary('_101')),
     Chord.new(ternary('_110'), ternary('_200')),
   ].map(Polygon.fromChord)
 
-  return { initialLeaves, branchSpecs, base: 3 }
+  return { leaves: leaves, branchSpecs, base: 3 }
 }
 
-export const criticalTriangleGapIRT_ternary = (): LaminationDefinition => {
+export const criticalTriangleGapIRT_ternary = (): ParsedLamination => {
   const pointA = ternary('_002')
   const pointB = ternary('_101')
   const pointC = ternary('2_011')
@@ -132,7 +165,7 @@ export const criticalTriangleGapIRT_ternary = (): LaminationDefinition => {
     makeBranchSpec(criticalB, pointC),
   ]
 
-  const initialLeaves = [
+  const leaves = [
     Polygon.new([
       pointA,
       pointB,
@@ -152,10 +185,10 @@ export const criticalTriangleGapIRT_ternary = (): LaminationDefinition => {
     ])
   ]
 
-  return { initialLeaves, branchSpecs, base: 3 }
+  return { leaves: leaves, branchSpecs, base: 3 }
 }
 
-export const irq_fat_quaternary = (): LaminationDefinition => {
+export const irq_fat_quaternary = (): ParsedLamination => {
   const pointA = quaternary('0_233')
   const pointB = quaternary('_030')
   const pointC = quaternary('1_300')
@@ -176,10 +209,10 @@ export const irq_fat_quaternary = (): LaminationDefinition => {
     pointF,
   ])
 
-  return { initialLeaves: [middleSquare], branchSpecs, base: 4 }
+  return { leaves: [middleSquare], branchSpecs, base: 4 }
 }
 
-export const irq_thin_quaternary = (): LaminationDefinition => {
+export const irq_thin_quaternary = (): ParsedLamination => {
   const pointA = quaternary('_010')
   const pointB = quaternary('_100')
   const pointC = quaternary('2_001')
@@ -200,11 +233,11 @@ export const irq_thin_quaternary = (): LaminationDefinition => {
     quaternary('_300'),
   ])
 
-  return { initialLeaves: [middleSquare], branchSpecs, base: 4 }
+  return { leaves: [middleSquare], branchSpecs, base: 4 }
 }
 
 
-export const never_close_quintary = (): LaminationDefinition => {
+export const never_close_quintary = (): ParsedLamination => {
   const pointA = quintary('0_033')
   const pointB = quintary('_033')
   const pointC = quintary('1_330')
@@ -240,9 +273,36 @@ export const never_close_quintary = (): LaminationDefinition => {
   ])
 
   return {
-    initialLeaves: [bigTriangle, mediumTriangle, smallTriangle],
+    leaves: [bigTriangle, mediumTriangle, smallTriangle],
     branchSpecs,
     base: 5,
   }
+}
+
+export const never_close_quintary_def: LaminationDefinition = {
+  base: 5,
+  leaves: [
+    {points: ['_033', '_200', '_300']},
+    {points: ['_020', '_030', '_303']},
+    {points: ['_002', '_003', '_330']}
+  ],
+  branches: [
+    {
+      chord: ['0_033', '_303'],
+      endpoints: ['0_033']
+    },
+    {
+      chord: ['_033', '1_330'],
+      endpoints: ['1_330']
+    },
+    {
+      chord: ['_200', '3_002'],
+      endpoints: ['3_002']
+    },
+    {
+      chord: ['_330', '4_303'],
+      endpoints: ['4_303']
+    },
+  ]
 }
 
