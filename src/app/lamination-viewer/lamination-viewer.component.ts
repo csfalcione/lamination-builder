@@ -1,18 +1,7 @@
 import { Component, OnInit, Input, ViewChild, ElementRef } from '@angular/core';
-import { Polygon, NaryFraction } from 'laminations-lib';
+import { Polygon } from 'laminations-lib';
 import { RenderSettings, LaminationState } from '../builder-state';
 import { makeCanvasRenderer } from '../lamination-renderer/canvas-renderer';
-
-const displayPoint = (t: NaryFraction) => {
-  const rational = t.toRational().join('/')
-  const joiner = t.base < 10 ? '' : ','
-  const naryString = `${t.exactPart.join(joiner)}_${t.repeatingPart.join(joiner)}`
-  return `${naryString} (${rational})`
-}
-
-const displayPolygon = (poly) => {
-  return poly.points.map(displayPoint).join(', ')
-}
 
 
 @Component({
@@ -39,9 +28,8 @@ export class LaminationViewerComponent implements OnInit {
   }
 
   prettyPrint(lamination: Polygon[]) {
-    return lamination.map(displayPolygon).join("\n")
+    return lamination.map(poly => `${poly}`).join("\n")
   }
 
 }
-
 

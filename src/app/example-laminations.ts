@@ -1,6 +1,6 @@
 import { LaminationState } from './builder-state';
 import { Observable, from } from 'rxjs';
-import { NaryFraction, Chord, BranchRegion, makeRegion, Polygon, PullbackLamination } from 'laminations-lib';
+import { NaryFraction, Chord, Polygon, PullbackLamination, BranchSpec, makeBuilder, makeBranchSpec } from 'laminations-lib';
 import { map } from 'rxjs/operators';
 
 const binary = NaryFraction.parseFactory(2)
@@ -9,35 +9,20 @@ const quaternary = NaryFraction.parseFactory(4)
 const quintary = NaryFraction.parseFactory(5)
 
 interface LaminationDefinition {
-  initialLeaves: Polygon[],
-  criticalChords: Chord[],
-  branches: BranchRegion[],
+  base: number
+  initialLeaves: Polygon[]
+  branchSpecs: BranchSpec[]
 }
 
-export const pullbackObservable = ({initialLeaves, criticalChords, branches}: LaminationDefinition): Observable<LaminationState> => {
+export const pullbackObservable = ({ initialLeaves, branchSpecs, base }: LaminationDefinition): Observable<LaminationState> => {
+  const branches = makeBuilder(base)(branchSpecs)
   return from(PullbackLamination.iterates(initialLeaves, branches))
-  .pipe(
-    map(lamination => ({
-      lamination,
-      criticalChords,
-    }))
-  )
-}
-
-const branchFromChord = (chord: Chord, ...points: NaryFraction[]): BranchRegion => {
-  const identifier = (point) => chord.contains(point) || points.some(boundary => point.equals(boundary))
-  return makeRegion(identifier)
-}
-
-const makeFinalBranch = (branches: BranchRegion[]): BranchRegion => {
-  return makeRegion((p) => !branches.some(branch => branch.isInBranch(p)))
-}
-
-const fillOutBranches = (d: number, branches: BranchRegion[]): BranchRegion[] => {
-  if (branches.length >= d) {
-    return branches
-  }
-  return [...branches, makeFinalBranch(branches)]
+    .pipe(
+      map(lamination => ({
+        lamination,
+        criticalChords: branchSpecs.map(spec => spec.chord),
+      }))
+    )
 }
 
 
@@ -46,11 +31,10 @@ export const rabbitLamination = (): LaminationDefinition => {
     binary('_001'), // 1/7
     binary('1_010') // 9/14
   )
-  const criticalChords = [criticalChord]
-
-  const branches: BranchRegion[] = fillOutBranches(2, [
-    branchFromChord(criticalChord, criticalChord.lower)
-  ])
+  
+  const branchSpecs = [
+    makeBranchSpec(criticalChord, criticalChord.lower)
+  ]
 
   const startingTriangle = Polygon.new([
     binary('_001'), // 1/7
@@ -58,7 +42,7 @@ export const rabbitLamination = (): LaminationDefinition => {
     binary('_100'), // 4/7
   ])
 
-  return {initialLeaves: [startingTriangle], criticalChords, branches}
+  return { initialLeaves: [startingTriangle], branchSpecs, base: 2 }
 }
 
 export const rabbitLamination_ternary = (): LaminationDefinition => {
@@ -69,16 +53,12 @@ export const rabbitLamination_ternary = (): LaminationDefinition => {
   const criticalA = Chord.new(pointA, pointB)
   const criticalB = Chord.new(pointB, pointC)
   const criticalC = Chord.new(pointC, pointA)
-  const criticalChords = [
-    criticalA,
-    criticalB,
-    criticalC,
+  
+  const branchSpecs = [
+    makeBranchSpec(criticalA, pointA),
+    makeBranchSpec(criticalB, pointB),
+    makeBranchSpec(criticalC, pointC)
   ]
-
-  const branches: BranchRegion[] = fillOutBranches(3, [
-    branchFromChord(criticalA, pointA),
-    branchFromChord(criticalB, pointB),
-  ])
 
   const startingTriangle = Polygon.new([
     ternary('_001'),
@@ -86,7 +66,7 @@ export const rabbitLamination_ternary = (): LaminationDefinition => {
     ternary('_100'),
   ])
 
-  return {initialLeaves: [startingTriangle], criticalChords, branches}
+  return { initialLeaves: [startingTriangle], branchSpecs, base: 3 }
 }
 
 export const ternarySymmetricLamination = (): LaminationDefinition => {
@@ -98,12 +78,11 @@ export const ternarySymmetricLamination = (): LaminationDefinition => {
     ternary('0_21'), // 7/24
     ternary('_12') // 5/8
   )
-  const criticalChords = [criticalA, criticalB]
-
-  const branches: BranchRegion[] = fillOutBranches(3, [
-    branchFromChord(criticalA, criticalA.lower),
-    branchFromChord(criticalB, criticalB.upper),
-  ])
+  
+  const branchSpecs = [
+    makeBranchSpec(criticalA, criticalA.lower),
+    makeBranchSpec(criticalB, criticalB.upper),
+  ]
 
   const initialLeaves = [
     Chord.new(
@@ -116,27 +95,19 @@ export const ternarySymmetricLamination = (): LaminationDefinition => {
     )
   ].map(Polygon.fromChord)
 
-  return {initialLeaves, criticalChords, branches}
+  return { initialLeaves, branchSpecs, base: 3 }
 }
 
 export const criticalTriangleGap_ternary = (): LaminationDefinition => {
   const pointA = ternary('_002')
   const pointB = ternary('1_020')
   const pointC = ternary('2_020')
-
-  const criticalA = Chord.new(pointA, pointB)
-  const criticalB = Chord.new(pointB, pointC)
-  const criticalC = Chord.new(pointC, pointA)
-  const criticalChords = [
-    criticalA,
-    criticalB,
-    criticalC,
+  
+  const branchSpecs = [
+    makeBranchSpec(Chord.new(pointA, pointB), pointA),
+    makeBranchSpec(Chord.new(pointB, pointC), pointB),
+    makeBranchSpec(Chord.new(pointC, pointA), pointC),
   ]
-
-  const branches: BranchRegion[] = fillOutBranches(3, [
-    branchFromChord(criticalA, pointA),
-    branchFromChord(criticalB, pointB),
-  ])
 
   const initialLeaves = [
     Chord.new(ternary('_011'), ternary('_020')),
@@ -144,7 +115,7 @@ export const criticalTriangleGap_ternary = (): LaminationDefinition => {
     Chord.new(ternary('_110'), ternary('_200')),
   ].map(Polygon.fromChord)
 
-  return {initialLeaves, criticalChords, branches}
+  return { initialLeaves, branchSpecs, base: 3 }
 }
 
 export const criticalTriangleGapIRT_ternary = (): LaminationDefinition => {
@@ -155,15 +126,11 @@ export const criticalTriangleGapIRT_ternary = (): LaminationDefinition => {
 
   const criticalA = Chord.new(pointA, pointD)
   const criticalB = Chord.new(pointB, pointC)
-  const criticalChords = [
-    criticalA,
-    criticalB,
+  
+  const branchSpecs = [
+    makeBranchSpec(criticalA, pointD),
+    makeBranchSpec(criticalB, pointC),
   ]
-
-  const branches: BranchRegion[] = fillOutBranches(3, [
-    branchFromChord(criticalA, pointD),
-    branchFromChord(criticalB, pointC),
-  ])
 
   const initialLeaves = [
     Polygon.new([
@@ -185,7 +152,7 @@ export const criticalTriangleGapIRT_ternary = (): LaminationDefinition => {
     ])
   ]
 
-  return {initialLeaves, criticalChords, branches}
+  return { initialLeaves, branchSpecs, base: 3 }
 }
 
 export const irq_fat_quaternary = (): LaminationDefinition => {
@@ -196,20 +163,11 @@ export const irq_fat_quaternary = (): LaminationDefinition => {
   const pointE = quaternary('_230')
   const pointF = quaternary('_323')
 
-  const criticalA = Chord.new(pointA, pointF)
-  const criticalB = Chord.new(pointB, pointC)
-  const criticalC = Chord.new(pointD, pointE)
-  const criticalChords = [
-    criticalA,
-    criticalB,
-    criticalC,
+  const branchSpecs = [
+    makeBranchSpec(Chord.new(pointA, pointF), pointA),
+    makeBranchSpec(Chord.new(pointB, pointC), pointC),
+    makeBranchSpec(Chord.new(pointD, pointE), pointD),
   ]
-
-  const branches: BranchRegion[] = fillOutBranches(4, [
-    branchFromChord(criticalA, pointA),
-    branchFromChord(criticalB, pointC),
-    branchFromChord(criticalC, pointD),
-  ])
 
   const middleSquare = Polygon.new([
     pointB,
@@ -218,7 +176,7 @@ export const irq_fat_quaternary = (): LaminationDefinition => {
     pointF,
   ])
 
-  return {initialLeaves: [middleSquare], criticalChords, branches}
+  return { initialLeaves: [middleSquare], branchSpecs, base: 4 }
 }
 
 export const irq_thin_quaternary = (): LaminationDefinition => {
@@ -229,20 +187,11 @@ export const irq_thin_quaternary = (): LaminationDefinition => {
   const pointE = quaternary('3_002')
   const pointF = quaternary('3_100')
 
-  const criticalA = Chord.new(pointA, pointF)
-  const criticalB = Chord.new(pointB, pointC)
-  const criticalC = Chord.new(pointD, pointE)
-  const criticalChords = [
-    criticalA,
-    criticalB,
-    criticalC,
-  ]  
-
-  const branches: BranchRegion[] = fillOutBranches(4, [
-    branchFromChord(criticalA, pointF),
-    branchFromChord(criticalB, pointC),
-    branchFromChord(criticalC, pointE),
-  ])
+  const branchSpecs = [
+    makeBranchSpec(Chord.new(pointA, pointF), pointF),
+    makeBranchSpec(Chord.new(pointB, pointC), pointC),
+    makeBranchSpec(Chord.new(pointD, pointE), pointE),
+  ]
 
   const middleSquare = Polygon.new([
     quaternary('_033'),
@@ -251,7 +200,7 @@ export const irq_thin_quaternary = (): LaminationDefinition => {
     quaternary('_300'),
   ])
 
-  return {initialLeaves: [middleSquare], criticalChords, branches}
+  return { initialLeaves: [middleSquare], branchSpecs, base: 4 }
 }
 
 
@@ -265,24 +214,12 @@ export const never_close_quintary = (): LaminationDefinition => {
   const pointG = quintary('_330')
   const pointH = quintary('4_303')
 
-  const criticalA = Chord.new(pointA, pointF)
-  const criticalB = Chord.new(pointB, pointC)
-  const criticalC = Chord.new(pointD, pointE)
-  const criticalD = Chord.new(pointG, pointH)
-  const criticalChords = [criticalA, criticalB, criticalC, criticalD]
-
-  // criticalA contains criticalD
-  const branchA_incomplete = branchFromChord(criticalA, pointA)
-  const branchD = branchFromChord(criticalD, pointH)
-  const branchA = makeRegion((p: NaryFraction) => {
-    return branchA_incomplete.isInBranch(p) && !branchD.isInBranch(p)
-  })
-  const branchB = branchFromChord(criticalB, pointC)
-  const branchC = branchFromChord(criticalC, pointE)
-
-  const branches: BranchRegion[] = fillOutBranches(5, [
-    branchA, branchB, branchC, branchD
-  ])
+  const branchSpecs = [
+    makeBranchSpec(Chord.new(pointA, pointF), pointA),
+    makeBranchSpec(Chord.new(pointB, pointC), pointC),
+    makeBranchSpec(Chord.new(pointD, pointE), pointE),
+    makeBranchSpec(Chord.new(pointG, pointH), pointH),
+  ]
 
   const bigTriangle = Polygon.new([
     pointB,
@@ -302,6 +239,10 @@ export const never_close_quintary = (): LaminationDefinition => {
     pointG
   ])
 
-  return {initialLeaves: [bigTriangle, mediumTriangle, smallTriangle], criticalChords, branches}
+  return {
+    initialLeaves: [bigTriangle, mediumTriangle, smallTriangle],
+    branchSpecs,
+    base: 5,
+  }
 }
 
