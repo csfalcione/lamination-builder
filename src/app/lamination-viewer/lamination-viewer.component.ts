@@ -1,5 +1,5 @@
 import { Component, OnInit, Input, ViewChild, ElementRef } from '@angular/core';
-import { Polygon } from 'laminations-lib';
+import { Polygon, NaryFraction } from 'laminations-lib';
 import { RenderSettings, LaminationState } from '../builder-state';
 import { makeCanvasRenderer } from '../lamination-renderer/canvas-renderer';
 
@@ -28,7 +28,9 @@ export class LaminationViewerComponent implements OnInit {
   }
 
   prettyPrint(lamination: Polygon[]) {
-    return lamination.map(poly => `${poly}`).join("\n")
+    return lamination
+      .sort((a, b) => NaryFraction.compare(a.points[0], b.points[0]))
+      .map(poly => `${poly}`).join("\n")
   }
 
 }
