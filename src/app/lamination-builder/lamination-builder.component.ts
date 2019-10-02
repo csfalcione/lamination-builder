@@ -66,6 +66,7 @@ export class LaminationBuilderComponent implements OnInit {
       try {
         const definition = JSON.parse(reader.result as string)
         this.laminationData = parseLaminationDefinition(definition)
+        this.numPullbacks = 0
         this.generateLamination()
       } catch (e) {
         alert(e)
