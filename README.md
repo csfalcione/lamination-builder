@@ -87,6 +87,7 @@ npm start
 After compilation, the server should be running on `http://localhost:4200`.
 
 - Deploy to GitHub Pages
+
 Assuming you have <a href="https://github.com/angular-schule/angular-cli-ghpages/blob/master/docs/README_standalone.md">angular-cli-ghpages</a> installed, run:
 ```
 npm run build -- --prod --base-href=/lamination-builder/
