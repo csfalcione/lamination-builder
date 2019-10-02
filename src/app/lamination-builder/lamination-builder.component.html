@@ -1,3 +1,13 @@
+<div>
+  <input type="text" [(ngModel)]="laminationData.name">
+  <label class="custom-file-upload">
+      <input type="file" (change)="uploadFile($event.target.files[0])">
+    Upload JSON
+  </label>
+  
+  <button (click)="saveTemplateFile()">Save Template</button>
+  
+</div>
 
 <div>
   <strong style="margin-right: 4px">Pullbacks:</strong>

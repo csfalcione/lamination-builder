@@ -3,7 +3,7 @@ import { RenderSettings, LaminationState } from '../builder-state';
 import { take, scan } from 'rxjs/operators'
 import { makeSvgRenderer } from '../lamination-renderer/svg-renderer';
 import { saveAs } from 'file-saver'
-import { pullbackObservable, parseLaminationDefinition } from '../example-laminations'
+import { pullbackObservable, parseLaminationDefinition, LaminationData } from '../example-laminations'
 import * as examples from '../example-laminations';
 
 @Component({
@@ -14,36 +14,15 @@ import * as examples from '../example-laminations';
 export class LaminationBuilderComponent implements OnInit {
 
   renderSettings: RenderSettings = this.initialRenderSettings()
+  laminationData: LaminationData = parseLaminationDefinition(examples.never_close_quintary_def)
   laminationState: LaminationState = this.laminationStateIdentity()
-  laminationName = 'lamination'
 
   numPullbacks = 0
 
   constructor() { }
 
-  laminationData() {
-    return parseLaminationDefinition(examples.never_close_quintary_def)
-  }
-
   ngOnInit() {
     setTimeout(() => this.generateLamination())
-  }
-
-  setNumPullbacks(input: string) {
-    const parsed = parseInt(input)
-    if (isNaN(parsed)) {
-      return
-    }
-    this.numPullbacks = parsed
-    this.generateLamination()
-  }
-
-  saveSvg() {
-    const renderer = makeSvgRenderer(this.renderSettings)
-    const svgString = renderer.render(this.laminationState)
-    saveAs(new Blob([svgString]), `${this.laminationName} - pullback ${this.numPullbacks}.svg`, {
-      type: 'image/svg+xml'
-    })
   }
 
   generateLamination() {
@@ -56,8 +35,7 @@ export class LaminationBuilderComponent implements OnInit {
       }
     }
 
-    const data = this.laminationData()
-    this.laminationName = data.name
+    const data = this.laminationData
     pullbackObservable(data)
       .pipe(
         scan(addLaminationStates, this.laminationStateIdentity()),
@@ -66,6 +44,45 @@ export class LaminationBuilderComponent implements OnInit {
       .subscribe(state => {
         this.laminationState = state
       })
+  }
+
+  setNumPullbacks(input: string) {
+    const parsed = parseInt(input)
+    if (isNaN(parsed)) {
+      return
+    }
+    this.numPullbacks = parsed
+    this.generateLamination()
+  }
+
+  uploadFile(file: File) {
+    const reader = new FileReader()
+    reader.readAsText(file)
+    reader.addEventListener('load', () => {
+      try {
+        const definition = JSON.parse(reader.result as string)
+        this.laminationData = parseLaminationDefinition(definition)
+        this.generateLamination()
+      } catch (e) {
+        alert(e)
+      }
+    })
+    
+  }
+
+  saveTemplateFile() {
+    saveAs(new Blob([examples.template]), 'Example Lamination.json', {
+      type: 'application/json'
+    })
+  }
+
+  saveSvg() {
+    const renderer = makeSvgRenderer(this.renderSettings)
+    const svgString = renderer.render(this.laminationState)
+    const name = this.laminationData.name
+    saveAs(new Blob([svgString]), `${name} - pullback ${this.numPullbacks}.svg`, {
+      type: 'image/svg+xml'
+    })
   }
 
   laminationStateIdentity(): LaminationState {
