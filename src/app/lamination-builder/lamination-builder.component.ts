@@ -1,10 +1,16 @@
 import { Component, OnInit } from '@angular/core';
 import { RenderSettings, LaminationState } from '../builder-state';
-import { take, scan } from 'rxjs/operators'
+import { take, scan, map } from 'rxjs/operators'
 import { makeSvgRenderer } from '../lamination-renderer/svg-renderer';
 import { saveAs } from 'file-saver'
 import { pullbackObservable, parseLaminationDefinition, LaminationData } from '../example-laminations'
 import * as examples from '../example-laminations';
+import { Polygon, Chord } from 'laminations-lib';
+
+interface DistinctLaminationState {
+  laminationMap: Map<string, Polygon>,
+  criticalChords: Chord[],
+}
 
 @Component({
   selector: 'app-lamination-builder',
@@ -25,12 +31,17 @@ export class LaminationBuilderComponent implements OnInit {
     setTimeout(() => this.generateLamination())
   }
 
+
   generateLamination() {
     const iterations = this.numPullbacks + 1
 
-    const addLaminationStates = (a: LaminationState, b: LaminationState): LaminationState => {
+    const addLaminationStates = (a: DistinctLaminationState, b: LaminationState): DistinctLaminationState => {
+      const newMap = new Map(a.laminationMap.entries())
+      b.lamination.forEach(poly => {
+        newMap.set(`${poly}`, poly)
+      })
       return {
-        lamination: [...a.lamination, ...b.lamination],
+        laminationMap: newMap,
         criticalChords: b.criticalChords,
       }
     }
@@ -38,7 +49,10 @@ export class LaminationBuilderComponent implements OnInit {
     const data = this.laminationData
     pullbackObservable(data)
       .pipe(
-        scan(addLaminationStates, this.laminationStateIdentity()),
+        scan(addLaminationStates, {laminationMap: new Map(), criticalChords: []}),
+        map(({laminationMap, criticalChords}): LaminationState => {
+          return {lamination: [...laminationMap.values()], criticalChords}
+        }),
         take(iterations)
       )
       .subscribe(state => {
