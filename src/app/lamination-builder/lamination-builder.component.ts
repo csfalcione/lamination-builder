@@ -55,19 +55,31 @@ export class LaminationBuilderComponent implements OnInit {
     this.generateLamination()
   }
 
-  uploadFile(file: File) {
+  uploadFile(eventTarget) {
+    const file = eventTarget.files[0]
     const reader = new FileReader()
-    reader.readAsText(file)
-    reader.addEventListener('load', () => {
+
+    const cleanUp = () => {
+      eventTarget.value = ''
+    }
+    const successHandler = () => {
       try {
         const definition = JSON.parse(reader.result as string)
         this.laminationData = parseLaminationDefinition(definition)
         this.generateLamination()
       } catch (e) {
         alert(e)
+      } finally {
+        cleanUp()
       }
-    })
-    
+    }
+    const errorHandler = () => {
+      alert(`Error reading ${file.name}`)
+      cleanUp()
+    }
+    reader.addEventListener('load', successHandler)
+    reader.addEventListener('error', errorHandler)
+    reader.readAsText(file)
   }
 
   saveTemplateFile() {
