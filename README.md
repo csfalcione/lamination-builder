@@ -82,7 +82,7 @@ npm install
 
 - Start local server
 ```
-npm run ng serve
+npm start
 ```
 After compilation, the server should be running on `http://localhost:4200`.
 
