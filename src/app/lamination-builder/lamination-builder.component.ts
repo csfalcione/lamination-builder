@@ -14,7 +14,7 @@ import * as examples from '../example-laminations';
 export class LaminationBuilderComponent implements OnInit {
 
   renderSettings: RenderSettings = this.initialRenderSettings()
-  laminationData: LaminationData = parseLaminationDefinition(examples.never_close_quintary_def)
+  laminationData: LaminationData = examples.rabbitLamination()
   laminationState: LaminationState = this.laminationStateIdentity()
 
   numPullbacks = 0
