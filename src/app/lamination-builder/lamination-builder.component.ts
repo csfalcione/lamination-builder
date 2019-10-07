@@ -5,11 +5,16 @@ import { makeSvgRenderer } from '../lamination-renderer/svg-renderer';
 import { saveAs } from 'file-saver'
 import { pullbackObservable, parseLaminationDefinition, LaminationData } from '../example-laminations'
 import * as examples from '../example-laminations';
-import { Polygon, Chord } from 'laminations-lib';
+import { Polygon } from 'laminations-lib';
 
-interface DistinctLaminationState {
-  laminationMap: Map<string, Polygon>,
-  criticalChords: Chord[],
+
+const removeDuplicates = (leaves: Polygon[]) => {
+  let set = new Set<string>()
+  return leaves.filter(poly => {
+    const result = !set.has(poly.toString())
+    set.add(poly.toString())
+    return result
+  })
 }
 
 @Component({
@@ -35,13 +40,9 @@ export class LaminationBuilderComponent implements OnInit {
   generateLamination() {
     const iterations = this.numPullbacks + 1
 
-    const addLaminationStates = (a: DistinctLaminationState, b: LaminationState): DistinctLaminationState => {
-      const newMap = new Map(a.laminationMap.entries())
-      b.lamination.forEach(poly => {
-        newMap.set(`${poly}`, poly)
-      })
+    const addLaminationStates = (a: LaminationState, b: LaminationState): LaminationState => {
       return {
-        laminationMap: newMap,
+        lamination: [...a.lamination, ...b.lamination],
         criticalChords: b.criticalChords,
       }
     }
@@ -49,9 +50,12 @@ export class LaminationBuilderComponent implements OnInit {
     const data = this.laminationData
     pullbackObservable(data)
       .pipe(
-        scan(addLaminationStates, {laminationMap: new Map(), criticalChords: []}),
-        map(({laminationMap, criticalChords}): LaminationState => {
-          return {lamination: [...laminationMap.values()], criticalChords}
+        scan(addLaminationStates, this.laminationStateIdentity()),
+        map(({lamination, criticalChords}: LaminationState) => {
+          return {
+            lamination: removeDuplicates(lamination),
+            criticalChords,
+          }
         }),
         take(iterations)
       )
