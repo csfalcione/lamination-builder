@@ -1,10 +1,10 @@
 import { Component, OnInit } from '@angular/core';
-import { RenderSettings, LaminationState } from '../builder-state';
+import { RenderSettings, LaminationState } from '../../lib/builder-state';
 import { take, scan, map } from 'rxjs/operators'
-import { makeSvgRenderer } from '../lamination-renderer/svg-renderer';
+import { makeSvgRenderer } from '../../lib/lamination-renderer/svg-renderer';
 import { saveAs } from 'file-saver'
-import { pullbackObservable, parseLaminationDefinition, LaminationData } from '../example-laminations'
-import * as examples from '../example-laminations';
+import { pullbackObservable, parseLaminationDefinition, LaminationData } from '../../lib/example-laminations'
+import * as examples from '../../lib/example-laminations';
 import { Polygon } from 'laminations-lib';
 
 

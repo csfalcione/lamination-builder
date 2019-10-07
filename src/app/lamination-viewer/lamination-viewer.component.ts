@@ -1,7 +1,7 @@
 import { Component, OnInit, Input, ViewChild, ElementRef } from '@angular/core';
 import { Polygon, NaryFraction } from 'laminations-lib';
-import { RenderSettings, LaminationState } from '../builder-state';
-import { makeCanvasRenderer } from '../lamination-renderer/canvas-renderer';
+import { RenderSettings, LaminationState } from '../../lib/builder-state';
+import { makeCanvasRenderer } from '../../lib/lamination-renderer/canvas-renderer';
 
 
 @Component({
