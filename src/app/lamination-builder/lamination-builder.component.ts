@@ -2,10 +2,10 @@ import { Component, OnInit } from '@angular/core';
 import { RenderSettings, LaminationState } from '../../lib/builder-state';
 import { map } from 'rxjs/operators'
 import { makeSvgRenderer } from '../../lib/lamination-renderer/svg-renderer';
-import { saveAs } from 'file-saver'
 import { parseLaminationDefinition, LaminationData } from '../../lib/example-laminations'
 import * as examples from '../../lib/example-laminations'
 import { makeObservableLamination, ObservableLamination } from 'src/lib/lamination-observable/lamination-observable'
+import { FilesService } from '../files.service';
 
 
 @Component({
@@ -23,7 +23,7 @@ export class LaminationBuilderComponent implements OnInit {
 
   numPullbacks = 0
 
-  constructor() { }
+  constructor(private files: FilesService) { }
 
   ngOnInit() {
     setTimeout(() => this.initLamination())
@@ -75,44 +75,36 @@ export class LaminationBuilderComponent implements OnInit {
 
   uploadFile(eventTarget) {
     const file = eventTarget.files[0]
-    const reader = new FileReader()
 
-    const cleanUp = () => {
+    this.files.readTextFile(file)
+    .then(jsonString => {
+      const definition = JSON.parse(jsonString)
+      this.initialData = parseLaminationDefinition(definition)
+      this.initLamination()
+    })
+    .catch(err => alert(err))
+    .finally(() => {
       eventTarget.value = ''
-    }
-    const successHandler = () => {
-      try {
-        const definition = JSON.parse(reader.result as string)
-        this.initialData = parseLaminationDefinition(definition)
-        this.initLamination()
-      } catch (e) {
-        alert(e)
-      } finally {
-        cleanUp()
-      }
-    }
-    const errorHandler = () => {
-      alert(`Error reading ${file.name}`)
-      cleanUp()
-    }
-    reader.addEventListener('load', successHandler)
-    reader.addEventListener('error', errorHandler)
-    reader.readAsText(file)
+    })
   }
 
   saveTemplateFile() {
-    saveAs(new Blob([examples.template]), 'Example Lamination.json', {
-      type: 'application/json'
-    })
+    this.files.saveTextFile(
+      'Example Lamination.json',
+      examples.template,
+      'application/json'
+    )
   }
 
   saveSvg() {
     const renderer = makeSvgRenderer(this.renderSettings)
     const svgString = renderer.render(this.laminationState)
     const name = this.initialData.name
-    saveAs(new Blob([svgString]), `${name} - pullback ${this.numPullbacks}.svg`, {
-      type: 'image/svg+xml'
-    })
+    this.files.saveTextFile(
+      `${name} - pullback ${this.numPullbacks}.svg`,
+      svgString,
+      'image/svg+xml'
+    )
   }
 
   laminationStateIdentity(): LaminationState {
