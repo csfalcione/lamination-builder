@@ -1,51 +1,11 @@
-import { NaryFraction, Chord, Polygon, BranchSpec, makeBranchSpec } from 'laminations-lib';
+import { NaryFraction, Chord, Polygon, makeBranchSpec } from 'laminations-lib';
+import { LaminationDefinition } from './lamination-parser';
+import { LaminationData } from './definitions';
 
 const binary = NaryFraction.parseFactory(2)
 const ternary = NaryFraction.parseFactory(3)
 const quaternary = NaryFraction.parseFactory(4)
 const quintary = NaryFraction.parseFactory(5)
-
-export interface LaminationData {
-  base: number
-  leaves: Polygon[]
-  branchSpecs: BranchSpec[]
-  name: string
-}
-
-export interface LaminationDefinition {
-  base: number
-  leaves: Array<{
-    points: string[]
-  }>
-  branches: Array<{
-    chord: [string, string]
-    endpoints: string[]
-  }>
-  name?: string
-}
-
-export const parseLaminationDefinition = (def: LaminationDefinition): LaminationData => {
-  const base = def.base
-  const parsePoint = NaryFraction.parseFactory(base)
-  
-  const leaves = def.leaves.map(poly => Polygon.new(poly.points.map(parsePoint)))
-
-  const branchSpecs = def.branches.map((branchDef) => {
-    const chordPoints = branchDef.chord.map(parsePoint)
-    const chord = Chord.new(chordPoints[0], chordPoints[1])
-
-    const endpoints = branchDef.endpoints.map(parsePoint)
-
-    return makeBranchSpec(chord, ...endpoints)
-  })
-
-  return {
-    base,
-    leaves,
-    branchSpecs,
-    name: def.name || 'lamination',
-  }
-}
 
 
 export const rabbitLamination = (): LaminationData => {

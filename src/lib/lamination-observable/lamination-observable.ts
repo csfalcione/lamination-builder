@@ -1,6 +1,6 @@
-import { LaminationData } from '../example-laminations'
 import { Observable, Subject } from 'rxjs'
 import { makeBuilder, Lamination, Polygon } from 'laminations-lib'
+import { LaminationData } from '../definitions'
 
 export interface ObservableLamination {
   // Inner observable. Subscribe to this.

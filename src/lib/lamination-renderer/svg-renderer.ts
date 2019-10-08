@@ -1,5 +1,5 @@
 import { Polygon, NaryFraction, Chord } from 'laminations-lib';
-import { RenderSettings, LaminationState } from '../builder-state';
+import { RenderSettings, LaminationState } from '../definitions';
 import { LaminationRenderer } from './lamination-renderer';
 
 // JS's % operator performs the remainder operation, not the modulus operation.

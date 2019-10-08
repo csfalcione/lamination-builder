@@ -1,11 +1,11 @@
 import { Component, OnInit } from '@angular/core';
-import { RenderSettings, LaminationState } from '../../lib/builder-state';
 import { map } from 'rxjs/operators'
 import { makeSvgRenderer } from '../../lib/lamination-renderer/svg-renderer';
-import { parseLaminationDefinition, LaminationData } from '../../lib/example-laminations'
 import * as examples from '../../lib/example-laminations'
 import { makeObservableLamination, ObservableLamination } from 'src/lib/lamination-observable/lamination-observable'
 import { FilesService } from '../files.service';
+import { parseLamination } from 'src/lib/lamination-parser';
+import { RenderSettings, LaminationData, LaminationState } from 'src/lib/definitions';
 
 
 @Component({
@@ -65,7 +65,6 @@ export class LaminationBuilderComponent implements OnInit {
       this.laminationObservable.mapForward(Math.abs(parsed))
       return
     }
-    // At this point, numPullbacks is positive.
     if (diff < 0) {
       this.laminationObservable.mapForward(Math.abs(diff))
       return
@@ -78,9 +77,12 @@ export class LaminationBuilderComponent implements OnInit {
 
     this.files.readTextFile(file)
     .then(jsonString => {
-      const definition = JSON.parse(jsonString)
-      this.initialData = parseLaminationDefinition(definition)
-      this.initLamination()
+      const userInput = JSON.parse(jsonString)
+      return parseLamination(userInput)
+    })
+    .then(data => {
+      this.initialData = data
+      this.initLamination()  
     })
     .catch(err => alert(err))
     .finally(() => {

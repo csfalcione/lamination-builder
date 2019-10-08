@@ -1,4 +1,4 @@
-import { RenderSettings, LaminationState } from "../builder-state";
+import { RenderSettings, LaminationState } from "../definitions";
 import { LaminationRenderer } from './lamination-renderer';
 import { Polygon, Chord } from 'laminations-lib';
 import { makeSVGPath } from './svg-renderer';

@@ -1,4 +1,11 @@
-import { Polygon, Chord } from 'laminations-lib';
+import { Polygon, BranchSpec, Chord } from 'laminations-lib';
+
+export interface LaminationData {
+  base: number
+  leaves: Polygon[]
+  branchSpecs: BranchSpec[]
+  name: string
+}
 
 export interface LaminationState {
   lamination: Array<Polygon>,
@@ -19,4 +26,3 @@ export interface BuilderState {
   laminationState: LaminationState,
   renderSettings: RenderSettings,
 }
-
