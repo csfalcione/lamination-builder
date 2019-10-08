@@ -1,11 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { RenderSettings, LaminationState } from '../../lib/builder-state';
-import { take, scan, map } from 'rxjs/operators'
+import { map } from 'rxjs/operators'
 import { makeSvgRenderer } from '../../lib/lamination-renderer/svg-renderer';
 import { saveAs } from 'file-saver'
-import { pullbackObservable, parseLaminationDefinition, LaminationData } from '../../lib/example-laminations'
-import * as examples from '../../lib/example-laminations';
-import { Lamination } from 'laminations-lib';
+import { parseLaminationDefinition, LaminationData } from '../../lib/example-laminations'
+import * as examples from '../../lib/example-laminations'
+import { makeObservableLamination, ObservableLamination } from 'src/lib/lamination-observable/lamination-observable'
 
 
 @Component({
@@ -16,7 +16,9 @@ import { Lamination } from 'laminations-lib';
 export class LaminationBuilderComponent implements OnInit {
 
   renderSettings: RenderSettings = this.initialRenderSettings()
-  laminationData: LaminationData = examples.rabbitLamination()
+  initialData: LaminationData = examples.rabbitLamination()
+
+  laminationObservable: ObservableLamination
   laminationState: LaminationState = this.laminationStateIdentity()
 
   numPullbacks = 0
@@ -24,35 +26,23 @@ export class LaminationBuilderComponent implements OnInit {
   constructor() { }
 
   ngOnInit() {
-    setTimeout(() => this.generateLamination())
+    setTimeout(() => this.initLamination())
   }
 
-
-  generateLamination() {
-    const iterations = this.numPullbacks + 1
-
-    const addLaminationStates = (a: LaminationState, b: LaminationState): LaminationState => {
-      return {
-        lamination: [...a.lamination, ...b.lamination],
-        criticalChords: b.criticalChords,
-      }
-    }
-
-    const data = this.laminationData
-    pullbackObservable(data)
+  initLamination() {
+    this.numPullbacks = 0
+    this.laminationObservable = makeObservableLamination(this.initialData)
+    this.laminationObservable.lamination$
       .pipe(
-        scan(addLaminationStates, this.laminationStateIdentity()),
-        map(({lamination, criticalChords}: LaminationState) => {
-          return {
-            lamination: lamination.filter(Lamination.removeDuplicates()),
-            criticalChords,
-          }
-        }),
-        take(iterations)
+        map(lamination => ({
+          lamination,
+          criticalChords: this.initialData.branchSpecs.map(spec => spec.chord),
+        }))
       )
       .subscribe(state => {
         this.laminationState = state
       })
+    this.laminationObservable.emitCurrent()
   }
 
   setNumPullbacks(input: string) {
@@ -60,8 +50,27 @@ export class LaminationBuilderComponent implements OnInit {
     if (isNaN(parsed)) {
       return
     }
+    const diff = parsed - this.numPullbacks
     this.numPullbacks = parsed
-    this.generateLamination()
+
+    if (parsed == 0) {
+      // Eliminate unnecessary computation, since we already have initial data.
+      this.laminationObservable.set(this.initialData.leaves)
+      return
+    }
+    if (parsed < 0 && diff > 0) {
+      // Pulling back a forward-invariant lamination after mapping forward
+      // will offset the pullback counter and confuse the user.
+      this.laminationObservable.set(this.initialData.leaves)
+      this.laminationObservable.mapForward(Math.abs(parsed))
+      return
+    }
+    // At this point, numPullbacks is positive.
+    if (diff < 0) {
+      this.laminationObservable.mapForward(Math.abs(diff))
+      return
+    }
+    this.laminationObservable.pullBack(diff)
   }
 
   uploadFile(eventTarget) {
@@ -74,9 +83,8 @@ export class LaminationBuilderComponent implements OnInit {
     const successHandler = () => {
       try {
         const definition = JSON.parse(reader.result as string)
-        this.laminationData = parseLaminationDefinition(definition)
-        this.numPullbacks = 0
-        this.generateLamination()
+        this.initialData = parseLaminationDefinition(definition)
+        this.initLamination()
       } catch (e) {
         alert(e)
       } finally {
@@ -101,7 +109,7 @@ export class LaminationBuilderComponent implements OnInit {
   saveSvg() {
     const renderer = makeSvgRenderer(this.renderSettings)
     const svgString = renderer.render(this.laminationState)
-    const name = this.laminationData.name
+    const name = this.initialData.name
     saveAs(new Blob([svgString]), `${name} - pullback ${this.numPullbacks}.svg`, {
       type: 'image/svg+xml'
     })
