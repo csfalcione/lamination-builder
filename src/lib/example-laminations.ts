@@ -1,6 +1,6 @@
 import { LaminationState } from './builder-state';
 import { Observable, from } from 'rxjs';
-import { NaryFraction, Chord, Polygon, PullbackLamination, BranchSpec, makeBuilder, makeBranchSpec } from 'laminations-lib';
+import { NaryFraction, Chord, Polygon, Lamination, BranchSpec, makeBuilder, makeBranchSpec } from 'laminations-lib';
 import { map } from 'rxjs/operators';
 
 const binary = NaryFraction.parseFactory(2)
@@ -52,7 +52,7 @@ export const parseLaminationDefinition = (def: LaminationDefinition): Lamination
 
 export const pullbackObservable = ({ leaves, branchSpecs, base }: LaminationData): Observable<LaminationState> => {
   const branches = makeBuilder(base)(branchSpecs)
-  return from(PullbackLamination.iterates(leaves, branches))
+  return from(Lamination.iterates(leaves, branches))
     .pipe(
       map(lamination => ({
         lamination,

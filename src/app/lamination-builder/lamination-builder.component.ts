@@ -5,17 +5,8 @@ import { makeSvgRenderer } from '../../lib/lamination-renderer/svg-renderer';
 import { saveAs } from 'file-saver'
 import { pullbackObservable, parseLaminationDefinition, LaminationData } from '../../lib/example-laminations'
 import * as examples from '../../lib/example-laminations';
-import { Polygon } from 'laminations-lib';
+import { Lamination } from 'laminations-lib';
 
-
-const removeDuplicates = (leaves: Polygon[]) => {
-  let set = new Set<string>()
-  return leaves.filter(poly => {
-    const result = !set.has(poly.toString())
-    set.add(poly.toString())
-    return result
-  })
-}
 
 @Component({
   selector: 'app-lamination-builder',
@@ -53,7 +44,7 @@ export class LaminationBuilderComponent implements OnInit {
         scan(addLaminationStates, this.laminationStateIdentity()),
         map(({lamination, criticalChords}: LaminationState) => {
           return {
-            lamination: removeDuplicates(lamination),
+            lamination: lamination.filter(Lamination.removeDuplicates()),
             criticalChords,
           }
         }),
