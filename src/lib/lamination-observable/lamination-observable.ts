@@ -10,12 +10,12 @@ export interface ObservableLamination {
   // Request that the current content of the observable be emitted.
   emitCurrent: () => void
   // Pulls back, updates, then emits the lamination in the observable.
-  pullBack: (count: number) => void
+  pullBack: (count: number, cumulative?: boolean) => void
   // Maps forward, updates, then emits the lamination in the observable.
-  mapForward: (count: number) => void
+  mapForward: (count: number, cumulative?: boolean) => void
 }
 
-export const makeObservableLamination = ({leaves, branchSpecs, base}: LaminationData, cumulativePullbacks = true): ObservableLamination => {
+export const makeObservableLamination = ({leaves, branchSpecs, base}: LaminationData): ObservableLamination => {
   const branches = makeBuilder(base)(branchSpecs)
   const lamination$ = new Subject<Polygon[]>()
   let lamination = leaves
@@ -29,19 +29,22 @@ export const makeObservableLamination = ({leaves, branchSpecs, base}: Lamination
     lamination$.next(lamination)
   }
 
-  const pullBack = (count: number) => {
+  const pullBack = (count: number, cumulative = true) => {
     for (let i = 0; i < count; i++) {
       let newLeaves = Lamination.pullBack(lamination, branches)
-      if (cumulativePullbacks) {
+      if (cumulative) {
         newLeaves = [...lamination, ...newLeaves]
       }
       set(newLeaves.filter(Lamination.removeDuplicates()))
     }
   }
 
-  const mapForward = (count: number) => {
+  const mapForward = (count: number, cumulative = false) => {
     for (let i = 0; i < count; i++) {
-      const newLeaves = Lamination.mapForward(lamination)
+      let newLeaves = Lamination.mapForward(lamination)
+      if (cumulative) {
+        newLeaves = [...lamination, ...newLeaves]
+      }
       set(newLeaves)
     }
   }

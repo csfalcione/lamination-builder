@@ -18,10 +18,11 @@ export class LaminationBuilderComponent implements OnInit {
   renderSettings: RenderSettings = this.initialRenderSettings()
   initialData: LaminationData = examples.rabbitLamination()
 
-  laminationObservable: ObservableLamination
+  lamination$: ObservableLamination
   laminationState: LaminationState = this.laminationStateIdentity()
 
   numPullbacks = 0
+  cumulative = true
 
   constructor(private files: FilesService) { }
 
@@ -31,8 +32,8 @@ export class LaminationBuilderComponent implements OnInit {
 
   initLamination() {
     this.numPullbacks = 0
-    this.laminationObservable = makeObservableLamination(this.initialData)
-    this.laminationObservable.lamination$
+    this.lamination$ = makeObservableLamination(this.initialData)
+    this.lamination$.lamination$
       .pipe(
         map(lamination => ({
           lamination,
@@ -42,11 +43,13 @@ export class LaminationBuilderComponent implements OnInit {
       .subscribe(state => {
         this.laminationState = state
       })
-    this.laminationObservable.emitCurrent()
+    this.lamination$.emitCurrent()
   }
 
   refresh() {
-    this.laminationObservable.emitCurrent()
+    const prevPullbacks = this.numPullbacks
+    this.updateNumPullbacks(0)
+    this.updateNumPullbacks(prevPullbacks)
   }
 
   setNumPullbacks(input: string) {
@@ -63,21 +66,28 @@ export class LaminationBuilderComponent implements OnInit {
 
     if (newNum == 0) {
       // Eliminate unnecessary computation, since we already have initial data.
-      this.laminationObservable.set(this.initialData.leaves)
+      this.lamination$.set(this.initialData.leaves)
       return
     }
-    if (newNum < 0 && diff > 0) {
-      // Pulling back a forward-invariant lamination after mapping forward
-      // will offset the pullback counter and confuse the user.
-      this.laminationObservable.set(this.initialData.leaves)
-      this.laminationObservable.mapForward(Math.abs(newNum))
+
+    if (newNum < 0) {
+      if (diff > 0) {
+        // Pulling back a forward-invariant lamination after mapping forward
+        // will offset the pullback counter and confuse the user.
+        this.lamination$.set(this.initialData.leaves)
+        this.lamination$.mapForward(Math.abs(newNum), this.cumulative)
+        return
+      }
+      this.lamination$.mapForward(Math.abs(diff), this.cumulative && newNum < 0)
       return
     }
-    if (diff < 0) {
-      this.laminationObservable.mapForward(Math.abs(diff))
+    if (newNum > 0 && diff < 0) {
+      this.lamination$.set(this.initialData.leaves)
+      this.lamination$.pullBack(Math.abs(newNum), this.cumulative)
       return
     }
-    this.laminationObservable.pullBack(diff)
+
+    this.lamination$.pullBack(diff, this.cumulative)
   }
 
   pullBack() {

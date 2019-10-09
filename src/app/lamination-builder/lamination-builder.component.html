@@ -22,7 +22,9 @@
   <strong style="margin-right: 4px">Preview Size:</strong>
   <input type="number" [(ngModel)]="renderSettings.size"
     style="max-width: 60px; margin-right: 4px">
-  <button (click)="refresh()">Refresh</button>
+    <strong style="margin: 0px 4px">Cumulative: </strong>
+    <input type="checkbox" [(ngModel)]="cumulative" (change)="refresh()">
+    <button (click)="refresh()" style="margin-left: 8px">Refresh</button>
 </div>
 
 <br/>
