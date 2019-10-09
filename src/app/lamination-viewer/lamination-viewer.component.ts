@@ -17,6 +17,8 @@ export class LaminationViewerComponent implements OnInit {
 
   @ViewChild('laminationCanvas') canvas: ElementRef
 
+  hasIntersections = false
+
   constructor() { }
 
   ngOnInit() { }
@@ -25,12 +27,32 @@ export class LaminationViewerComponent implements OnInit {
     const ctx: CanvasRenderingContext2D = this.canvas.nativeElement.getContext('2d')
     const renderer = makeCanvasRenderer(ctx, this.settings)
     renderer.render(this.laminationState)
+    this.hasIntersections = this.checkForIntersections()
+  }
+
+  checkForIntersections(): boolean {
+    // TODO: we can do better than O(n^2).
+    const lamination = this.laminationState.lamination
+
+    const chords = lamination
+    .map(poly => poly.toChords())
+    .reduce((acc, curr) => acc.concat(curr), [])
+
+    for (let i = 0; i < chords.length - 1; i++) {
+      for (let j = i + 1; j < chords.length; j++) {
+        if (chords[i].intersects(chords[j])) {
+          return true
+        }
+      }
+    }
+    return false
   }
 
   prettyPrint(lamination: Polygon[]) {
     return lamination
       .sort((a, b) => NaryFraction.compare(a.points[0], b.points[0]))
-      .map(poly => `${poly}`).join("\n")
+      .map(poly => `${poly}`)
+      .join("\n")
   }
 
 }
