@@ -37,6 +37,7 @@ export class LaminationViewerComponent implements OnInit {
     const chords = lamination
     .map(poly => poly.toChords())
     .reduce((acc, curr) => acc.concat(curr), [])
+    .concat(this.laminationState.criticalChords)
 
     for (let i = 0; i < chords.length - 1; i++) {
       for (let j = i + 1; j < chords.length; j++) {
