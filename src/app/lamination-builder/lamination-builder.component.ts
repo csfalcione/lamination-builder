@@ -45,6 +45,10 @@ export class LaminationBuilderComponent implements OnInit {
     this.laminationObservable.emitCurrent()
   }
 
+  refresh() {
+    this.laminationObservable.emitCurrent()
+  }
+
   setNumPullbacks(input: string) {
     const parsed = parseInt(input)
     if (isNaN(parsed)) {
