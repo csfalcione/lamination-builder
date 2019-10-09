@@ -13,6 +13,12 @@
   <strong style="margin-right: 4px">Pullbacks:</strong>
   <input type="number" [value]="numPullbacks" (input)="setNumPullbacks($event.target.value)"
     style="max-width: 40px; margin-right: 4px">
+  <button (click)="pullBack()">Pull Back</button>
+  <button (click)="mapForward()">Map Forward</button>
+  <button (click)="saveSvg()">Export SVG</button>
+</div>
+
+<div>
   <strong style="margin-right: 4px">Preview Size:</strong>
   <input type="number" [(ngModel)]="renderSettings.size"
     style="max-width: 60px; margin-right: 4px">

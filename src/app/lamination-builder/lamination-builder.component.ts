@@ -50,19 +50,23 @@ export class LaminationBuilderComponent implements OnInit {
     if (isNaN(parsed)) {
       return
     }
-    const diff = parsed - this.numPullbacks
-    this.numPullbacks = parsed
+    this.updateNumPullbacks(parsed)
+  }
 
-    if (parsed == 0) {
+  updateNumPullbacks(newNum: number) {
+    const diff = newNum - this.numPullbacks
+    this.numPullbacks = newNum
+
+    if (newNum == 0) {
       // Eliminate unnecessary computation, since we already have initial data.
       this.laminationObservable.set(this.initialData.leaves)
       return
     }
-    if (parsed < 0 && diff > 0) {
+    if (newNum < 0 && diff > 0) {
       // Pulling back a forward-invariant lamination after mapping forward
       // will offset the pullback counter and confuse the user.
       this.laminationObservable.set(this.initialData.leaves)
-      this.laminationObservable.mapForward(Math.abs(parsed))
+      this.laminationObservable.mapForward(Math.abs(newNum))
       return
     }
     if (diff < 0) {
@@ -70,6 +74,14 @@ export class LaminationBuilderComponent implements OnInit {
       return
     }
     this.laminationObservable.pullBack(diff)
+  }
+
+  pullBack() {
+    this.updateNumPullbacks(this.numPullbacks + 1)
+  }
+
+  mapForward() {
+    this.updateNumPullbacks(this.numPullbacks - 1)
   }
 
   uploadFile(eventTarget) {
