@@ -7,12 +7,10 @@
 
 <br/>
 
-<div *ngIf="hasIntersections">
-  <em>
-    Intersection detected
-  </em>
+<div *ngIf="intersections.length > 0">
+  <h3>Intersections:</h3>
+  <pre class="pointList">{{prettyPrintIntersections(intersections)}}</pre>
 </div>
 
 <h3>Leaves:</h3>
-<pre style="background-color: rgb(219, 219, 219); font-family: 'Courier New', Courier, monospace;
-  max-width: 600px">{{prettyPrint(laminationState.lamination)}}</pre>
+<pre class="pointList">{{prettyPrintLamination(laminationState.lamination)}}</pre>
