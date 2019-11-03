@@ -45,7 +45,7 @@ export const makeObservableLamination = ({leaves, branchSpecs, base}: Lamination
       if (cumulative) {
         newLeaves = [...lamination, ...newLeaves]
       }
-      set(newLeaves)
+      set(newLeaves.filter(Lamination.removeDuplicates()))
     }
   }
 
