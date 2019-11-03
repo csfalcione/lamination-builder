@@ -12,6 +12,7 @@ export interface LaminationDefinition {
   branches: Array<{
     chord: [string, string]
     endpoints: string[]
+    flip?: boolean
   }>
   name?: string
 }
@@ -39,6 +40,9 @@ const branchSchema = {
     'endpoints': {
       'type': 'array',
       'items': {'type': 'string'}
+    },
+    'flip': {
+      'type': 'boolean'
     }
   },
   'required': ['chord', 'endpoints']
@@ -80,8 +84,7 @@ const parseLaminationDefinition = (def: LaminationDefinition): LaminationData =>
     const chord = Chord.new(chordPoints[0], chordPoints[1])
 
     const endpoints = branchDef.endpoints.map(parsePoint)
-
-    return makeBranchSpec(chord, ...endpoints)
+    return {...branchDef, chord, endpoints}
   })
 
   return {
