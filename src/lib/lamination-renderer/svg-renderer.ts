@@ -64,10 +64,10 @@ const defaultSvgAttrs = {
 }
 
 export const makeSvgRenderer = (settings: RenderSettings): LaminationRenderer<string> => {
-  const radius = Math.floor(settings.size / 2) - 10
+  const radius = Math.floor(2 * settings.size) - 10
 
   const render = (laminationState: LaminationState): string => {
-    const midpoint = settings.size / 2
+    const midpoint = 2 * settings.size // Quadruple the size
     const transform = `matrix(1,0,0,-1,${midpoint},${midpoint})`
 
     const circle = tag('circle', {
@@ -109,8 +109,8 @@ export const makeSvgRenderer = (settings: RenderSettings): LaminationRenderer<st
 
     return tag('svg', {
       ...defaultSvgAttrs,
-      width: settings.size,
-      height: settings.size,
+      width: 4 * settings.size,
+      height: 4 * settings.size,
       'background-color': settings.backgroundColor,
     }, `${circle}${chords}${criticalChords}`)
   }
