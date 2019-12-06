@@ -23,7 +23,8 @@ const polygonSchema = {
   'properties': {
     'points': {
       'type': 'array',
-      'items': {'type': 'string'}
+      'items': {'type': 'string'},
+      'minItems': 1,
     }
   },
   'required': ['points']
