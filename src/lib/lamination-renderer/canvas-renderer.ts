@@ -18,6 +18,9 @@ export const makeCanvasRenderer = (ctx: CanvasRenderingContext2D, settings: Rend
   }
 
   const drawPolygon = (polygon: Polygon) => {
+    if (polygon.points.length === 0) {
+      return;
+    }
     const radius = getRadius()
     const svgPathString = makeSVGPath(polygon, radius, settings.renderHyperbolic)
     const path = new Path2D(svgPathString)

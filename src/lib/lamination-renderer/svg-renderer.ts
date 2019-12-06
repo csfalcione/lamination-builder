@@ -80,6 +80,9 @@ export const makeSvgRenderer = (settings: RenderSettings): LaminationRenderer<st
 
     const chords = laminationState.lamination
       .map((polygon: Polygon) => {
+        if (polygon.points.length === 0) {
+          return;
+        }
         let strokeWidth = 1
         if (polygon.toChords().some((chord: Chord) => {
           const width = chord.upper.toNumber() - chord.lower.toNumber()
