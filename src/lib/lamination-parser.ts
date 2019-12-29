@@ -6,6 +6,7 @@ import { LaminationData } from './definitions'
 
 export interface LaminationDefinition {
   base: number
+  name?: string
   description?: string
   leaves: Array<{
     points: string[]
@@ -14,8 +15,9 @@ export interface LaminationDefinition {
     chord: [string, string]
     endpoints: string[]
     flip?: boolean
+    leaf?: boolean
   }>
-  name?: string
+  branchesAreLeaves?: boolean
 }
 
 const polygonSchema = {
@@ -45,6 +47,9 @@ const branchSchema = {
     },
     'flip': {
       'type': 'boolean'
+    },
+    'leaf': {
+      'type': 'boolean'
     }
   },
   'required': ['chord', 'endpoints']
@@ -64,6 +69,9 @@ const definitionSchema = {
     'branches': {
       'type': 'array',
       'items': {'$ref': '/Branch'}
+    },
+    'branchesAreLeaves': {
+      'type': 'boolean'
     }
   },
   'required': ['base', 'leaves', 'branches']
@@ -80,11 +88,17 @@ const parseLaminationDefinition = (def: LaminationDefinition): LaminationData =>
   const base = def.base
   const parsePoint = NaryFraction.parseFactory(base)
   
-  const leaves = def.leaves.map(poly => Polygon.new(poly.points.map(parsePoint)))
+  let leaves = def.leaves.map(poly => Polygon.new(poly.points.map(parsePoint)))
 
   const branchSpecs = def.branches.map((branchDef) => {
     const chordPoints = branchDef.chord.map(parsePoint)
     const chord = Chord.new(chordPoints[0], chordPoints[1])
+
+    if (branchDef.leaf === true ||
+        (def.branchesAreLeaves === true && branchDef.leaf !== false)
+    ) {
+      leaves.push(Polygon.new(chordPoints))
+    }
 
     const endpoints = branchDef.endpoints.map(parsePoint)
     return {...branchDef, chord, endpoints}
