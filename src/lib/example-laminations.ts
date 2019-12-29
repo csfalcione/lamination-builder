@@ -24,7 +24,13 @@ export const rabbitLamination = (): LaminationData => {
     binary('_100'), // 4/7
   ])
 
-  return { leaves: [startingTriangle], branchSpecs, base: 2, name: "Rabbit" }
+  return { 
+    leaves: [startingTriangle],
+    branchSpecs,
+    base: 2,
+    name: "Rabbit",
+    description: "Lamination corresponding to the Douady Rabbit Julia set."
+  }
 }
 
 export const rabbitLamination_ternary = (): LaminationData => {
@@ -261,6 +267,7 @@ export const template =
 `{
   "name": "EXAMPLE LAMINATION",
   "base": 3,
+  "description": "Sample description.",
   "branches": [
     {
       "chord": ["_002", "2_020"],

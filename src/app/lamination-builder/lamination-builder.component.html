@@ -27,7 +27,7 @@
     <button (click)="refresh()" style="margin-left: 8px">Refresh</button>
 </div>
 
-<br/>
+<p><em>{{initialData.description || "no description provided"}}</em></p>
 
 <app-lamination-viewer [laminationState]="laminationState" [settings]="renderSettings"></app-lamination-viewer>
 

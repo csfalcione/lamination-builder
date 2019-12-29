@@ -6,6 +6,7 @@ import { LaminationData } from './definitions'
 
 export interface LaminationDefinition {
   base: number
+  description?: string
   leaves: Array<{
     points: string[]
   }>
@@ -55,6 +56,7 @@ const definitionSchema = {
   'properties': {
     'base': {'type': 'number'},
     'name': {'type': 'string'},
+    'description': {'type': 'string'},
     'leaves': {
       'type': 'array',
       'items': {'$ref': '/Polygon'}
@@ -88,12 +90,18 @@ const parseLaminationDefinition = (def: LaminationDefinition): LaminationData =>
     return {...branchDef, chord, endpoints}
   })
 
-  return {
+  let result: LaminationData = {
     base,
     leaves,
     branchSpecs,
     name: def.name || 'lamination',
   }
+
+  if (def.description != null) {
+    result.description = def.description
+  }
+
+  return result
 }
 
 export const parseLamination = (parsedJson: any): Promise<LaminationData> => {

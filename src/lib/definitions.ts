@@ -5,6 +5,7 @@ export interface LaminationData {
   leaves: Polygon[]
   branchSpecs: BranchSpec[]
   name: string
+  description?: string
 }
 
 export interface LaminationState {
