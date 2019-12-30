@@ -56,6 +56,7 @@ A `NaryString` is a string specifying digits of a `base`-ary fraction representi
 - `0_123` corresponds to `0.0123123123...`
 - `_01` corresponds to `0.01010101...`
 - `_11` corresponds to `0.111111...` (which is equal to `0` in binary)
+
 The internal representation for these fractions supports mapping backward and forwards without rounding error. If `base` is greater than or equal to `10`, delimit digits with commas e.g. `17,10_9,0,11`.
 
 
@@ -64,7 +65,7 @@ Leaves are merely the initial polygons (or chords) specified by an array of thei
 
 
 ### Branches
-Branches of the inverse map are necessary to disambiguate and guide the pullbacks of the lamination. These branches are mutually exclusive sets of points on the circle, satisfying that that set of points maps 1:1 onto the unit circle. Each branch is specified only by a [critical] chord and some additional set of points. The interior of the chord (the smaller of the two regions of the circle split by the chord) is included, but not the endpoints of the chord. The points specified by the `endpoints` array are also included in the region. There is no restriction on the number of extra points provided, nor do they have to be the otherwise-excluded endpoints of the chord.
+Branches of the inverse map are necessary to disambiguate and guide pullbacks. These branches are mutually exclusive sets of points on the circle, satisfying that each set of points maps 1:1 onto the circle. Each branch is specified only by a \[critical] chord and some additional set of points. The interior of the chord (the smaller of the two regions of the circle split by the chord) is included, but not the endpoints. The points specified by the `endpoints` array are also included in the region. There is no restriction on the number of extra points provided. They don't even have to be a chord's otherwise-excluded endpoints.
 
 Nested regions are supported. The smaller regions contained within larger regions are excluded from the larger regions.
 
@@ -72,7 +73,7 @@ It is up to the user to ensure the correctness of branches. Incorrectly-specifie
 
 
 #### Disambiguating Diameters and the `flip` Directive
-The interior of a branch is usually determined by the smaller of the two regions a given chord splits the disk into. The two regions split by a diameter are of equal size, however, introducing ambiguity. With no additional intervention, the application will pick the "lower" region. Given `a < b`, a diameter connecting `a` and `b` will correspond to the interval `(a, b)`. If you instead wish for it to correspond to the union of `(b, 1)` and `(0, a)`, then the chord's `flip` directive may be used.
+The interior of a branch is usually determined by the smaller of the two regions bordering its chord. The two regions split by a diameter are of equal size, however, introducing ambiguity. With no additional intervention, the application will pick the "lower" region. Given `a < b`, a diameter connecting `a` and `b` will correspond to the interval `(a, b)`. If you instead wish for it to correspond to the union of `(b, 1)` and `(0, a)`, then the chord's `flip` directive may be used.
 
 Note that the `flip` directive does not affect which endpoints are included.
 
@@ -108,7 +109,7 @@ For example:
 ```
 
 #### Treating Branches as Leaves
-Some laminations involve using the same set of chords as both leaves and branches. The `branch` directive can be added to a leaf to indicate that it's chords should also be interpreted as branches, reducing the surface area for user-error. By default, the clockwise-most endpoint of each chord is selected. If you instead want the counter-clockwise-most endpoint to be selected instead, also include the `flipEndpoints` directive. If your endpoint setup is more complicated than that, then this isn't for you. Diameter ambiguity may be resolved with the `flipDiameters` directive.
+Some laminations involve using the same set of chords as both leaves and branches. The `branch` directive can be added to a leaf to indicate that its chords should also be interpreted as branches, reducing the surface area for user-error. By default, the clockwise-most endpoint of each chord is selected. If you instead want the counter-clockwise-most endpoint to be selected instead, also include the `flipEndpoints` directive. If your endpoint setup is more complicated than that, then this directive isn't for you. Diameter ambiguity may be resolved with the `flipDiameters` directive.
 
 For example, the following two definitions are equivalent.
 
@@ -178,8 +179,7 @@ npm start
 After compilation, the server should be running on `http://localhost:4200`.
 
 - Deploy to GitHub Pages
-
-Assuming you have <a href="https://github.com/angular-schule/angular-cli-ghpages/blob/master/docs/README_standalone.md">angular-cli-ghpages</a> installed, run:
+This app is hosted (for free) by GitHub Pages. Deploy with:
 ```
 npm run build -- --prod --base-href=/lamination-builder/
 npx angular-cli-ghpages --dir=dist/lamination-builder
