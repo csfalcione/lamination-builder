@@ -13,15 +13,16 @@ export interface LaminationDefinition {
   name?: string
   description?: string
   leaves: Array<{
-    points: string[]
+    points: NaryString[]
+    branch?: boolean
+    flipEndpoints?: boolean
+    flipDiameters?: boolean
   }>
   branches: Array<{
-    chord: [string, string]
-    endpoints: string[]
+    chord: [NaryString, NaryString]
+    endpoints: NaryString[]
     flip?: boolean
-    leaf?: boolean
   }>
-  branchesAreLeaves?: boolean
 }
 ```
 
@@ -57,6 +58,11 @@ A `NaryString` is a string specifying digits of a `base`-ary fraction representi
 - `_11` corresponds to `0.111111...` (which is equal to `0` in binary)
 The internal representation for these fractions supports mapping backward and forwards without rounding error. If `base` is greater than or equal to `10`, delimit digits with commas e.g. `17,10_9,0,11`.
 
+
+### Leaves
+Leaves are merely the initial polygons (or chords) specified by an array of their vertices that get recursively pulled back.
+
+
 ### Branches
 Branches of the inverse map are necessary to disambiguate and guide the pullbacks of the lamination. These branches are mutually exclusive sets of points on the circle, satisfying that that set of points maps 1:1 onto the unit circle. Each branch is specified only by a [critical] chord and some additional set of points. The interior of the chord (the smaller of the two regions of the circle split by the chord) is included, but not the endpoints of the chord. The points specified by the `endpoints` array are also included in the region. There is no restriction on the number of extra points provided, nor do they have to be the otherwise-excluded endpoints of the chord.
 
@@ -67,6 +73,8 @@ It is up to the user to ensure the correctness of branches. Incorrectly-specifie
 
 #### Disambiguating Diameters and the `flip` Directive
 The interior of a branch is usually determined by the smaller of the two regions a given chord splits the disk into. The two regions split by a diameter are of equal size, however, introducing ambiguity. With no additional intervention, the application will pick the "lower" region. Given `a < b`, a diameter connecting `a` and `b` will correspond to the interval `(a, b)`. If you instead wish for it to correspond to the union of `(b, 1)` and `(0, a)`, then the chord's `flip` directive may be used.
+
+Note that the `flip` directive does not affect which endpoints are included.
 
 For example:
 ```json
@@ -99,9 +107,50 @@ For example:
 }
 ```
 
+#### Treating Branches as Leaves
+Some laminations involve using the same set of chords as both leaves and branches. The `branch` directive can be added to a leaf to indicate that it's chords should also be interpreted as branches, reducing the surface area for user-error. By default, the clockwise-most endpoint of each chord is selected. If you instead want the counter-clockwise-most endpoint to be selected instead, also include the `flipEndpoints` directive. If your endpoint setup is more complicated than that, then this isn't for you. Diameter ambiguity may be resolved with the `flipDiameters` directive.
 
-### Leaves
-Leaves are merely the initial polygons (or chords) specified by an array of their vertices that get recursively pulled back.
+For example, the following two definitions are equivalent.
+
+```json
+{
+  "name": "ac3-gon",
+  "description": "This particular lamination pulls back an all-critical triangle, and is sensitive to the particular endpoints chosen. Pull back twice with and without `flipEndpoints` to see the difference.",
+  "base": 3,
+  "branches": [],
+  "leaves": [
+    {
+      "points": ["_01", "1_10", "2_10"],
+      "branch": true,
+      "flipEndpoints": true
+    }
+  ]
+}
+```
+
+```json
+{
+  "name": "ac3-gon_verbose",
+  "base": 3,
+  "branches": [
+    {
+      "chord": ["_01", "1_10"],
+      "endpoints": ["1_10"]
+    },
+    {
+      "chord": ["1_10", "2_10"],
+      "endpoints": ["2_10"]
+    },
+    {
+      "chord": ["2_10", "_01"],
+      "endpoints": ["_01"]
+    }
+  ],
+  "leaves": [
+    {"points": ["_01", "1_10", "2_10"]}
+  ]
+}
+```
 
 ## Local Development
 

@@ -9,6 +9,9 @@ export interface LaminationDefinition {
   description?: string
   leaves: Array<{
     points: string[]
+    branch?: boolean
+    flipEndpoints?: boolean
+    flipDiameters?: boolean
   }>
   branches: Array<{
     chord: [string, string]
@@ -26,6 +29,15 @@ const polygonSchema = {
       'type': 'array',
       'items': {'type': 'string'},
       'minItems': 1,
+    },
+    'branch': {
+      'type': 'boolean'
+    },
+    'flipEndpoints': {
+      'type': 'boolean'
+    },
+    'flipDiameters': {
+      'type': 'boolean'
     }
   },
   'required': ['points']
@@ -76,18 +88,43 @@ const getValidator = () => {
   return validator
 }
 
+const mod = (a, b) => ((a % b) + b) % b
 const parseLaminationDefinition = (def: LaminationDefinition): LaminationData => {
   const base = def.base
   const parsePoint = NaryFraction.parseFactory(base)
-  
-  const leaves = def.leaves.map(poly => Polygon.new(poly.points.map(parsePoint)))
 
-  const branchSpecs = def.branches.map((branchDef) => {
+  let branchSpecs = def.branches.map((branchDef) => {
     const chordPoints = branchDef.chord.map(parsePoint)
     const chord = Chord.new(chordPoints[0], chordPoints[1])
 
     const endpoints = branchDef.endpoints.map(parsePoint)
     return {...branchDef, chord, endpoints}
+  })
+  
+  const leaves = def.leaves.map(leafDef => {
+    const polygon = Polygon.new(leafDef.points.map(parsePoint))
+    
+    if (leafDef.branch === true) {
+      const points = polygon.points
+      polygon.toChords()
+      // First find the appropriate endpoint for each branch.
+      .map((chord, idx) => {
+        const offset = leafDef.flipEndpoints? 1 : 0
+        const endpoint = polygon.points[mod(idx + offset, points.length)]
+        return {chord, endpoint}
+      })
+      // Then create appropriate branches.
+      .map(({chord, endpoint}) => {
+        return {
+          chord,
+          endpoints: [endpoint],
+          flip: leafDef.flipDiameters === true && chord.isDiameter()
+        }
+      })
+      .forEach(branchSpec => branchSpecs.push(branchSpec))
+    }
+
+    return polygon
   })
 
   let result: LaminationData = {
