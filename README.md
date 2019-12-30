@@ -73,7 +73,7 @@ It is up to the user to ensure the correctness of branches. Incorrectly-specifie
 
 
 #### Disambiguating Diameters and the `flip` Directive
-The interior of a branch is usually determined by the smaller of the two regions bordering its chord. The two regions split by a diameter are of equal size, however, introducing ambiguity. With no additional intervention, the application will pick the "lower" region. Given `a < b`, a diameter connecting `a` and `b` will correspond to the interval `(a, b)`. If you instead wish for it to correspond to the union of `(b, 1)` and `(0, a)`, then the chord's `flip` directive may be used.
+The interior of a branch is usually determined by the smaller of the two regions bordering its chord. The two regions split by a diameter are of equal size, however, introducing ambiguity. With no additional intervention, the application will pick the "lower" region. Given `a < b`, a diameter connecting `a` and `b` will correspond to the interval `(a, b)`. If you instead wish for it to correspond to `-[a,b]`, then the chord's `flip` directive may be used.
 
 Note that the `flip` directive does not affect which endpoints are included.
 
@@ -109,7 +109,7 @@ For example:
 ```
 
 #### Treating Branches as Leaves
-Some laminations involve using the same set of chords as both leaves and branches. The `branch` directive can be added to a leaf to indicate that its chords should also be interpreted as branches, reducing the surface area for user-error. By default, the clockwise-most endpoint of each chord is selected. If you instead want the counter-clockwise-most endpoint to be selected instead, also include the `flipEndpoints` directive. If your endpoint setup is more complicated than that, then this directive isn't for you. Diameter ambiguity may be resolved with the `flipDiameters` directive.
+Some laminations involve using the same set of chords as both leaves and branches. The `branch` directive can be added to a leaf to indicate that its chords should also be interpreted as branches, reducing the surface area for user-error. By default, the clockwise-most endpoint of each chord is selected. If you want the counter-clockwise-most endpoint to be selected instead, include the `flipEndpoints` directive. If your endpoint setup is more complicated than that, then this directive isn't for you. Diameter ambiguity may be resolved with the `flipDiameters` directive.
 
 The following two definitions are equivalent.
 
