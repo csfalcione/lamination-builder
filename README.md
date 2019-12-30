@@ -111,7 +111,7 @@ For example:
 #### Treating Branches as Leaves
 Some laminations involve using the same set of chords as both leaves and branches. The `branch` directive can be added to a leaf to indicate that its chords should also be interpreted as branches, reducing the surface area for user-error. By default, the clockwise-most endpoint of each chord is selected. If you instead want the counter-clockwise-most endpoint to be selected instead, also include the `flipEndpoints` directive. If your endpoint setup is more complicated than that, then this directive isn't for you. Diameter ambiguity may be resolved with the `flipDiameters` directive.
 
-For example, the following two definitions are equivalent.
+The following two definitions are equivalent.
 
 ```json
 {
