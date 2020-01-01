@@ -181,6 +181,5 @@ After compilation, the server should be running on `http://localhost:4200`.
 - Deploy to GitHub Pages
 This app is hosted (for free) by GitHub Pages. Deploy with:
 ```
-npm run build -- --prod --base-href=/lamination-builder/
-npx angular-cli-ghpages --dir=dist/lamination-builder
+npm run deploy
 ```
