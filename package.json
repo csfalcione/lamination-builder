@@ -23,7 +23,7 @@
     "core-js": "^2.6.9",
     "file-saver": "^2.0.2",
     "jsonschema": "^1.2.4",
-    "laminations-lib": "^0.6.3",
+    "laminations-lib": "^0.7.0",
     "rxjs": "~6.3.3",
     "tslib": "^1.10.0",
     "zone.js": "~0.8.26"
