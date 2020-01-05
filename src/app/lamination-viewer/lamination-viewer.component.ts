@@ -21,6 +21,8 @@ export class LaminationViewerComponent implements OnInit {
 
   intersections: Intersection[] = []
 
+  checkingForIntersections: boolean = false
+
   constructor() { }
 
   ngOnInit() { }
@@ -29,10 +31,20 @@ export class LaminationViewerComponent implements OnInit {
     const ctx: CanvasRenderingContext2D = this.canvas.nativeElement.getContext('2d')
     const renderer = makeCanvasRenderer(ctx, this.settings)
     renderer.render(this.laminationState)
-    this.intersections = [...this.checkForIntersections()]
+    this.checkForIntersections()
   }
 
-  *checkForIntersections(): IterableIterator<Intersection> {
+  checkForIntersections() {
+    if (this.laminationState.lamination.length > 250) {
+      this.checkingForIntersections = true
+    }
+    setTimeout(() => {
+      this.intersections = [...this.findIntersections()]
+      this.checkingForIntersections = false
+    })
+  }
+
+  *findIntersections(): IterableIterator<Intersection> {
     // TODO: we can do better than O(n^2).
     const lamination = List(this.laminationState.lamination)
 
