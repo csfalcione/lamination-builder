@@ -10,8 +10,8 @@ const toRadians = (t: NaryFraction) => 2 * Math.PI * t.toNumber()
 
 const svgPoint = (t: NaryFraction, radius: number) => {
   const angle = toRadians(t)
-  const xCoord = Math.floor(radius * Math.cos(angle))
-  const yCoord = Math.floor(radius * Math.sin(angle))
+  const xCoord = radius * Math.cos(angle)
+  const yCoord = radius * Math.sin(angle)
   return `${xCoord},${yCoord}`
 }
 
