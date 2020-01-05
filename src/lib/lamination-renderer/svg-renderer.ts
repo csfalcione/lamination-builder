@@ -71,7 +71,7 @@ export const makeSvgRenderer = (settings: RenderSettings): LaminationRenderer<st
     const transform = `matrix(1,0,0,-1,${midpoint},${midpoint})`
 
     const circle = tag('circle', {
-      r: radius,
+      r: radius + 1,
       stroke: settings.circleColor,
       'stroke-width': 3,
       fill: 'none',

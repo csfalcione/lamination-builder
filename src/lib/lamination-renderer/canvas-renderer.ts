@@ -56,7 +56,7 @@ export const makeCanvasRenderer = (ctx: CanvasRenderingContext2D, settings: Rend
 
     ctx.lineWidth = 3
     ctx.strokeStyle = settings.circleColor
-    drawCircle(getRadius())
+    drawCircle(getRadius() + 1)
 
     ctx.lineWidth = 2
     ctx.strokeStyle = settings.chordColor
