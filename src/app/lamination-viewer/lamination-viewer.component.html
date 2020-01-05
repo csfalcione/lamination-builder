@@ -7,7 +7,7 @@
 
 <br/>
 
-<em *ngIf="checkingForIntersections">checking for intersections...</em>
+<em *ngIf="showIntersectionLoader">checking for intersections...</em>
 <div *ngIf="intersections.length > 0">
   <h3>Intersections:</h3>
   <pre class="pointList">{{prettyPrintIntersections(intersections)}}</pre>

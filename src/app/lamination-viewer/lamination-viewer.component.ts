@@ -3,6 +3,8 @@ import { Polygon, NaryFraction, Chord } from 'laminations-lib';
 import { makeCanvasRenderer } from '../../lib/lamination-renderer/canvas-renderer';
 import { RenderSettings, LaminationState } from 'src/lib/definitions';
 import { List } from 'immutable';
+import { Subscription, from, asyncScheduler } from 'rxjs';
+import { mergeAll, toArray, tap, finalize } from 'rxjs/operators';
 
 type Intersection = [Chord, Chord]
 
@@ -20,8 +22,8 @@ export class LaminationViewerComponent implements OnInit {
   @ViewChild('laminationCanvas') canvas: ElementRef
 
   intersections: Intersection[] = []
-
-  checkingForIntersections: boolean = false
+  showIntersectionLoader = false
+  private intersectionSubscription: Subscription = null
 
   constructor() { }
 
@@ -35,16 +37,33 @@ export class LaminationViewerComponent implements OnInit {
   }
 
   checkForIntersections() {
-    if (this.laminationState.lamination.length > 250) {
-      this.checkingForIntersections = true
+    if (this.intersectionSubscription != null) {
+      this.intersectionSubscription.unsubscribe()
+      this.intersectionSubscription = null
+      this.intersections = []
     }
-    setTimeout(() => {
-      this.intersections = [...this.findIntersections()]
-      this.checkingForIntersections = false
-    })
+
+    if (this.laminationState.lamination.length > 250) {
+      this.showIntersectionLoader = true
+    }
+
+    this.intersectionSubscription = from(this.findIntersections(), asyncScheduler)
+      .pipe(
+        mergeAll(),
+        toArray(),
+        tap(intersections => {
+          this.intersections = intersections
+        }),
+        finalize(() => {
+          this.intersectionSubscription.unsubscribe()
+          this.intersectionSubscription = null
+          this.showIntersectionLoader = false
+        })
+      )
+      .subscribe()
   }
 
-  *findIntersections(): IterableIterator<Intersection> {
+  *findIntersections(chunkSize = 25000): IterableIterator<Intersection[]> {
     // TODO: we can do better than O(n^2).
     const lamination = List(this.laminationState.lamination)
 
@@ -52,15 +71,28 @@ export class LaminationViewerComponent implements OnInit {
       .flatMap(poly => poly.toChords())
       .concat(this.laminationState.criticalChords)
 
+    let loopCounter = 0
+    let chunk = []
+
     for (let i = 0; i < chords.size - 1; i++) {
       for (let j = i + 1; j < chords.size; j++) {
+        loopCounter++
+
         const chordA = chords.get(i)
         const chordB = chords.get(j)
         if (chordA.intersects(chordB)) {
-          yield [chordA, chordB]
+          chunk.push([chordA, chordB])
+        }
+
+        if (loopCounter >= chunkSize) {
+          yield chunk
+          chunk = []
+          loopCounter = 0
         }
       }
     }
+
+    yield chunk
   }
 
   prettyPrintLamination(lamination: Polygon[]) {
