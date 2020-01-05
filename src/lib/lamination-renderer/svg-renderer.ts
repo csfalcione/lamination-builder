@@ -35,16 +35,16 @@ export const makeSVGPath = (polygon: Polygon, circleRadius: number, hyperbolic: 
 
   const points = polygon.points
 
-  pathSpecs.push(`M ${svgPoint(points[0], circleRadius)}`)
+  pathSpecs.push(`M ${svgPoint(points.first(), circleRadius)}`)
 
-  for (let i = 1; i < points.length; i++) {
-    const point = points[i]
-    const prevPoint = points[i - 1]
+  for (let i = 1; i < points.size; i++) {
+    const point = points.get(i)
+    const prevPoint = points.get(i - 1)
     pathSpecs.push(getLinePathTo(point, prevPoint, circleRadius, hyperbolic))
   }
 
-  if (points.length > 2) {
-    pathSpecs.push(getLinePathTo(points[0], points[points.length - 1], circleRadius, hyperbolic))
+  if (points.size > 2) {
+    pathSpecs.push(getLinePathTo(points.first(), points.last(), circleRadius, hyperbolic))
   }
 
   return pathSpecs.join(' ')
@@ -80,7 +80,7 @@ export const makeSvgRenderer = (settings: RenderSettings): LaminationRenderer<st
 
     const chords = laminationState.lamination
       .map((polygon: Polygon) => {
-        if (polygon.points.length === 0) {
+        if (polygon.points.size === 0) {
           return;
         }
         let strokeWidth = 1
@@ -92,7 +92,7 @@ export const makeSvgRenderer = (settings: RenderSettings): LaminationRenderer<st
         }
         return tag('path', {
           stroke: settings.chordColor,
-          fill: polygon.points.length > 2 ? settings.polygonColor : 'none',
+          fill: polygon.points.size > 2 ? settings.polygonColor : 'none',
           'stroke-width': strokeWidth,
           transform,
           d: makeSVGPath(polygon, radius, settings.renderHyperbolic)

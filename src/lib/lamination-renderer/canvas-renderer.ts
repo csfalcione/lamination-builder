@@ -18,7 +18,7 @@ export const makeCanvasRenderer = (ctx: CanvasRenderingContext2D, settings: Rend
   }
 
   const drawPolygon = (polygon: Polygon) => {
-    if (polygon.points.length === 0) {
+    if (polygon.points.size === 0) {
       return;
     }
     const radius = getRadius()
@@ -26,7 +26,7 @@ export const makeCanvasRenderer = (ctx: CanvasRenderingContext2D, settings: Rend
     const path = new Path2D(svgPathString)
 
     ctx.stroke(path)
-    if (polygon.points.length > 2) {
+    if (polygon.points.size > 2) {
       ctx.fill(path)
     }
   }

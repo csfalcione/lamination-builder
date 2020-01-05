@@ -1,11 +1,14 @@
 import { NaryFraction, Chord, Polygon, makeBranchSpec } from 'laminations-lib';
 import { LaminationDefinition } from './lamination-parser';
 import { LaminationData } from './definitions';
+import { List } from 'immutable';
 
 const binary = NaryFraction.parseFactory(2)
 const ternary = NaryFraction.parseFactory(3)
 const quaternary = NaryFraction.parseFactory(4)
 const quintary = NaryFraction.parseFactory(5)
+
+const newPolygon = (points: NaryFraction[]): Polygon => Polygon.new(List(points))
 
 
 export const rabbitLamination = (): LaminationData => {
@@ -18,7 +21,7 @@ export const rabbitLamination = (): LaminationData => {
     makeBranchSpec(criticalChord, criticalChord.lower)
   ]
 
-  const startingTriangle = Polygon.new([
+  const startingTriangle = newPolygon([
     binary('_001'), // 1/7
     binary('_010'), // 2/7
     binary('_100'), // 4/7
@@ -48,7 +51,7 @@ export const rabbitLamination_ternary = (): LaminationData => {
     makeBranchSpec(criticalC, pointC)
   ]
 
-  const startingTriangle = Polygon.new([
+  const startingTriangle = newPolygon([
     ternary('_001'),
     ternary('_010'),
     ternary('_100'),
@@ -121,19 +124,19 @@ export const criticalTriangleGapIRT_ternary = (): LaminationData => {
   ]
 
   const leaves = [
-    Polygon.new([
+    newPolygon([
       pointA,
       pointB,
       ternary('_201')
     ]),
 
-    Polygon.new([
+    newPolygon([
       ternary('_011'),
       ternary('_020'),
       ternary('_012')
     ]),
 
-    Polygon.new([
+    newPolygon([
       ternary('_110'),
       ternary('_200'),
       ternary('_120')
@@ -157,7 +160,7 @@ export const irq_fat_quaternary = (): LaminationData => {
     makeBranchSpec(Chord.new(pointD, pointE), pointD),
   ]
 
-  const middleSquare = Polygon.new([
+  const middleSquare = newPolygon([
     pointB,
     quaternary('_130'),
     pointE,
@@ -181,7 +184,7 @@ export const irq_thin_quaternary = (): LaminationData => {
     makeBranchSpec(Chord.new(pointD, pointE), pointE),
   ]
 
-  const middleSquare = Polygon.new([
+  const middleSquare = newPolygon([
     quaternary('_033'),
     pointB,
     pointD,
@@ -209,19 +212,19 @@ export const never_close_quintary = (): LaminationData => {
     makeBranchSpec(Chord.new(pointG, pointH), pointH),
   ]
 
-  const bigTriangle = Polygon.new([
+  const bigTriangle = newPolygon([
     pointB,
     pointD,
     quintary('_300')
   ])
 
-  const mediumTriangle = Polygon.new([
+  const mediumTriangle = newPolygon([
     quintary('_020'),
     quintary('_030'),
     pointF
   ])
 
-  const smallTriangle = Polygon.new([
+  const smallTriangle = newPolygon([
     quintary('_002'),
     quintary('_003'),
     pointG

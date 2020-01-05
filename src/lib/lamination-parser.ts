@@ -1,8 +1,9 @@
 import { Polygon, NaryFraction, Chord, makeBranchSpec } from 'laminations-lib'
 import {Validator} from 'jsonschema'
 import { LaminationData } from './definitions'
+import { List } from 'immutable'
 
-
+const newPolygon = (points: NaryFraction[]): Polygon => Polygon.new(List(points))
 
 export interface LaminationDefinition {
   base: number
@@ -102,7 +103,7 @@ const parseLaminationDefinition = (def: LaminationDefinition): LaminationData =>
   })
   
   const leaves = def.leaves.map(leafDef => {
-    const polygon = Polygon.new(leafDef.points.map(parsePoint))
+    const polygon = newPolygon(leafDef.points.map(parsePoint))
     
     if (leafDef.branch === true) {
       const points = polygon.points
@@ -110,7 +111,7 @@ const parseLaminationDefinition = (def: LaminationDefinition): LaminationData =>
       // First find the appropriate endpoint for each branch.
       .map((chord, idx) => {
         const offset = leafDef.flipEndpoints? 1 : 0
-        const endpoint = polygon.points[mod(idx + offset, points.length)]
+        const endpoint = polygon.points.get(mod(idx + offset, points.size))
         return {chord, endpoint}
       })
       // Then create appropriate branches.
