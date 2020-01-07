@@ -1,5 +1,5 @@
 import { Component, OnInit, Input, ViewChild, ElementRef } from '@angular/core';
-import { Polygon, NaryFraction, Chord } from 'laminations-lib';
+import { Polygons, Polygon, Fractions, Chords, Chord } from 'laminations-lib';
 import { makeCanvasRenderer } from '../../lib/lamination-renderer/canvas-renderer';
 import { RenderSettings, LaminationState } from 'src/lib/definitions';
 import { List } from 'immutable';
@@ -68,7 +68,7 @@ export class LaminationViewerComponent implements OnInit {
     const lamination = List(this.laminationState.lamination)
 
     const chords = lamination
-      .flatMap(poly => poly.toChords())
+      .flatMap(Polygons.toChords)
       .concat(this.laminationState.criticalChords)
 
     let loopCounter = 0
@@ -80,7 +80,7 @@ export class LaminationViewerComponent implements OnInit {
 
         const chordA = chords.get(i)
         const chordB = chords.get(j)
-        if (chordA.intersects(chordB)) {
+        if (Chords.intersects(chordA, chordB)) {
           chunk.push([chordA, chordB])
         }
 
@@ -97,7 +97,7 @@ export class LaminationViewerComponent implements OnInit {
 
   prettyPrintLamination(lamination: Polygon[]) {
     return lamination
-      .sort((a, b) => NaryFraction.compare(a.points.first(), b.points.first()))
+      .sort((a, b) => Fractions.compare(a.points.first(), b.points.first()))
       .map(poly => `${poly}`)
       .join("\n")
   }

@@ -1,5 +1,5 @@
 import { Observable, Subject } from 'rxjs'
-import { makeBuilder, Lamination, Polygon } from 'laminations-lib'
+import { makeBuilder, Lamination, Polygons, Polygon, Fractions } from 'laminations-lib'
 import { LaminationData } from '../definitions'
 
 export interface ObservableLamination {
@@ -31,7 +31,7 @@ export const makeObservableLamination = ({leaves, branchSpecs, base}: Lamination
 
   const pullBack = (count: number, cumulative = true) => {
     for (let i = 0; i < count; i++) {
-      let newLeaves = Lamination.pullBack(lamination, branches)
+      let newLeaves = Lamination.pullBack(Fractions.mapBackward)(lamination, branches)
       if (cumulative) {
         newLeaves = [...lamination, ...newLeaves]
       }
@@ -41,7 +41,7 @@ export const makeObservableLamination = ({leaves, branchSpecs, base}: Lamination
 
   const mapForward = (count: number, cumulative = false) => {
     for (let i = 0; i < count; i++) {
-      let newLeaves = Lamination.mapForward(lamination)
+      let newLeaves = Lamination.mapForward(Polygons.mapForward)(lamination)
       if (cumulative) {
         newLeaves = [...lamination, ...newLeaves]
       }

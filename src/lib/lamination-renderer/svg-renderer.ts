@@ -1,4 +1,4 @@
-import { Polygon, NaryFraction, Chord } from 'laminations-lib';
+import { Polygon, Fraction, Chord, Fractions, Chords, Polygons } from 'laminations-lib';
 import { RenderSettings, LaminationState } from '../definitions';
 import { LaminationRenderer } from './lamination-renderer';
 
@@ -6,21 +6,21 @@ import { LaminationRenderer } from './lamination-renderer';
 // They behave differently for negatives.
 const mod = (a, b) => ((a % b) + b) % b
 
-const toRadians = (t: NaryFraction) => 2 * Math.PI * t.toNumber()
+const toRadians = (t: Fraction) => 2 * Math.PI * Fractions.toNumber(t)
 
-const svgPoint = (t: NaryFraction, radius: number) => {
+const svgPoint = (t: Fraction, radius: number) => {
   const angle = toRadians(t)
   const xCoord = radius * Math.cos(angle)
   const yCoord = radius * Math.sin(angle)
   return `${xCoord},${yCoord}`
 }
 
-const getLinePathTo = (point: NaryFraction, prevPoint: NaryFraction, circleRadius: number, hyperbolic: boolean): string => {
+const getLinePathTo = (point: Fraction, prevPoint: Fraction, circleRadius: number, hyperbolic: boolean): string => {
   if (!hyperbolic) {
     return `L ${svgPoint(point, circleRadius)}`
   }
 
-  const chordWidth = mod(point.toNumber() - prevPoint.toNumber(), 1)
+  const chordWidth = mod(Fractions.toNumber(point) - Fractions.toNumber(prevPoint), 1)
   if (Math.abs(chordWidth - 0.5) < 0.0001) {
     return getLinePathTo(point, prevPoint, circleRadius, false)
   }
@@ -84,8 +84,8 @@ export const makeSvgRenderer = (settings: RenderSettings): LaminationRenderer<st
           return;
         }
         let strokeWidth = 1
-        if (polygon.toChords().some((chord: Chord) => {
-          const width = chord.upper.toNumber() - chord.lower.toNumber()
+        if (Polygons.toChords(polygon).some((chord: Chord) => {
+          const width = Chords.width(chord)
           return width < 0.01 || 1 - width < 0.01
         })) {
           strokeWidth = 0.25
@@ -106,7 +106,7 @@ export const makeSvgRenderer = (settings: RenderSettings): LaminationRenderer<st
         'stroke-width': 2,
         fill: 'none',
         transform,
-        d: makeSVGPath(Polygon.fromChord(chord), radius, settings.renderHyperbolic)
+        d: makeSVGPath(Polygons.fromChord(chord), radius, settings.renderHyperbolic)
       }))
       .join('')
 

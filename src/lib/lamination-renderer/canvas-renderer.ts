@@ -1,6 +1,6 @@
 import { RenderSettings, LaminationState } from "../definitions";
 import { LaminationRenderer } from './lamination-renderer';
-import { Polygon, Chord } from 'laminations-lib';
+import { Polygon, Chord, Polygons } from 'laminations-lib';
 import { makeSVGPath } from './svg-renderer';
 
 export const makeCanvasRenderer = (ctx: CanvasRenderingContext2D, settings: RenderSettings): LaminationRenderer<void> => {
@@ -36,7 +36,7 @@ export const makeCanvasRenderer = (ctx: CanvasRenderingContext2D, settings: Rend
   }
 
   const drawCriticalChords = (chords: Chord[]) => {
-    drawLamination(chords.map(Polygon.fromChord))
+    drawLamination(chords.map(Polygons.fromChord))
   }
 
   const drawCircle = (radius) => {

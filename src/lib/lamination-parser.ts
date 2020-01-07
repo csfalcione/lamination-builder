@@ -1,9 +1,9 @@
-import { Polygon, NaryFraction, Chord, makeBranchSpec } from 'laminations-lib'
+import { Polygon, Fraction, Polygons, Fractions, Chords } from 'laminations-lib'
 import {Validator} from 'jsonschema'
 import { LaminationData } from './definitions'
 import { List } from 'immutable'
 
-const newPolygon = (points: NaryFraction[]): Polygon => Polygon.new(List(points))
+const newPolygon = (points: Fraction[]): Polygon => Polygons.create(List(points))
 
 export interface LaminationDefinition {
   base: number
@@ -92,11 +92,11 @@ const getValidator = () => {
 const mod = (a, b) => ((a % b) + b) % b
 const parseLaminationDefinition = (def: LaminationDefinition): LaminationData => {
   const base = def.base
-  const parsePoint = NaryFraction.parseFactory(base)
+  const parsePoint = Fractions.parseFactory(base)
 
   let branchSpecs = def.branches.map((branchDef) => {
     const chordPoints = branchDef.chord.map(parsePoint)
-    const chord = Chord.new(chordPoints[0], chordPoints[1])
+    const chord = Chords.create(chordPoints[0], chordPoints[1])
 
     const endpoints = branchDef.endpoints.map(parsePoint)
     return {...branchDef, chord, endpoints}
@@ -107,7 +107,7 @@ const parseLaminationDefinition = (def: LaminationDefinition): LaminationData =>
     
     if (leafDef.branch === true) {
       const points = polygon.points
-      polygon.toChords()
+      Polygons.toChords(polygon)
       // First find the appropriate endpoint for each branch.
       .map((chord, idx) => {
         const offset = leafDef.flipEndpoints? 1 : 0
@@ -119,7 +119,7 @@ const parseLaminationDefinition = (def: LaminationDefinition): LaminationData =>
         return {
           chord,
           endpoints: [endpoint],
-          flip: leafDef.flipDiameters === true && chord.isDiameter()
+          flip: leafDef.flipDiameters === true && Chords.isDiameter(chord)
         }
       })
       .forEach(branchSpec => branchSpecs.push(branchSpec))

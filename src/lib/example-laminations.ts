@@ -1,18 +1,18 @@
-import { NaryFraction, Chord, Polygon, makeBranchSpec } from 'laminations-lib';
+import { Fractions, Fraction, Chords, Polygons, Polygon, makeBranchSpec } from 'laminations-lib';
 import { LaminationDefinition } from './lamination-parser';
 import { LaminationData } from './definitions';
 import { List } from 'immutable';
 
-const binary = NaryFraction.parseFactory(2)
-const ternary = NaryFraction.parseFactory(3)
-const quaternary = NaryFraction.parseFactory(4)
-const quintary = NaryFraction.parseFactory(5)
+const binary = Fractions.parseFactory(2)
+const ternary = Fractions.parseFactory(3)
+const quaternary = Fractions.parseFactory(4)
+const quintary = Fractions.parseFactory(5)
 
-const newPolygon = (points: NaryFraction[]): Polygon => Polygon.new(List(points))
+const newPolygon = (points: Fraction[]): Polygon => Polygons.create(List(points))
 
 
 export const rabbitLamination = (): LaminationData => {
-  const criticalChord = Chord.new(
+  const criticalChord = Chords.create(
     binary('_001'), // 1/7
     binary('1_010') // 9/14
   )
@@ -41,9 +41,9 @@ export const rabbitLamination_ternary = (): LaminationData => {
   const pointB = ternary('1_010')
   const pointC = ternary('2_010')
 
-  const criticalA = Chord.new(pointA, pointB)
-  const criticalB = Chord.new(pointB, pointC)
-  const criticalC = Chord.new(pointC, pointA)
+  const criticalA = Chords.create(pointA, pointB)
+  const criticalB = Chords.create(pointB, pointC)
+  const criticalC = Chords.create(pointC, pointA)
   
   const branchSpecs = [
     makeBranchSpec(criticalA, pointA),
@@ -61,11 +61,11 @@ export const rabbitLamination_ternary = (): LaminationData => {
 }
 
 export const ternarySymmetricLamination = (): LaminationData => {
-  const criticalA = Chord.new(
+  const criticalA = Chords.create(
     ternary('_01'), // 1/8
     ternary('2_10') // 19/24
   )
-  const criticalB = Chord.new(
+  const criticalB = Chords.create(
     ternary('0_21'), // 7/24
     ternary('_12') // 5/8
   )
@@ -76,15 +76,15 @@ export const ternarySymmetricLamination = (): LaminationData => {
   ]
 
   const leaves = [
-    Chord.new(
+    Chords.create(
       ternary('_01'), // 1/8
       ternary('_21') // 7/8
     ),
-    Chord.new(
+    Chords.create(
       ternary('_10'), // 3/8
       ternary('_12') // 5/8
     )
-  ].map(Polygon.fromChord)
+  ].map(Polygons.fromChord)
 
   return { leaves: leaves, branchSpecs, base: 3, name: "Temple" }
 }
@@ -95,16 +95,16 @@ export const criticalTriangleGap_ternary = (): LaminationData => {
   const pointC = ternary('2_020')
   
   const branchSpecs = [
-    makeBranchSpec(Chord.new(pointA, pointB), pointA),
-    makeBranchSpec(Chord.new(pointB, pointC), pointB),
-    makeBranchSpec(Chord.new(pointC, pointA), pointC),
+    makeBranchSpec(Chords.create(pointA, pointB), pointA),
+    makeBranchSpec(Chords.create(pointB, pointC), pointB),
+    makeBranchSpec(Chords.create(pointC, pointA), pointC),
   ]
 
   const leaves = [
-    Chord.new(ternary('_011'), ternary('_020')),
-    Chord.new(ternary('_002'), ternary('_101')),
-    Chord.new(ternary('_110'), ternary('_200')),
-  ].map(Polygon.fromChord)
+    Chords.create(ternary('_011'), ternary('_020')),
+    Chords.create(ternary('_002'), ternary('_101')),
+    Chords.create(ternary('_110'), ternary('_200')),
+  ].map(Polygons.fromChord)
 
   return { leaves: leaves, branchSpecs, base: 3, name: "Critical Triangle with Gap" }
 }
@@ -115,8 +115,8 @@ export const criticalTriangleGapIRT_ternary = (): LaminationData => {
   const pointC = ternary('2_011')
   const pointD = ternary('2_020')
 
-  const criticalA = Chord.new(pointA, pointD)
-  const criticalB = Chord.new(pointB, pointC)
+  const criticalA = Chords.create(pointA, pointD)
+  const criticalB = Chords.create(pointB, pointC)
   
   const branchSpecs = [
     makeBranchSpec(criticalA, pointD),
@@ -155,9 +155,9 @@ export const irq_fat_quaternary = (): LaminationData => {
   const pointF = quaternary('_323')
 
   const branchSpecs = [
-    makeBranchSpec(Chord.new(pointA, pointF), pointA),
-    makeBranchSpec(Chord.new(pointB, pointC), pointC),
-    makeBranchSpec(Chord.new(pointD, pointE), pointD),
+    makeBranchSpec(Chords.create(pointA, pointF), pointA),
+    makeBranchSpec(Chords.create(pointB, pointC), pointC),
+    makeBranchSpec(Chords.create(pointD, pointE), pointD),
   ]
 
   const middleSquare = newPolygon([
@@ -179,9 +179,9 @@ export const irq_thin_quaternary = (): LaminationData => {
   const pointF = quaternary('3_100')
 
   const branchSpecs = [
-    makeBranchSpec(Chord.new(pointA, pointF), pointF),
-    makeBranchSpec(Chord.new(pointB, pointC), pointC),
-    makeBranchSpec(Chord.new(pointD, pointE), pointE),
+    makeBranchSpec(Chords.create(pointA, pointF), pointF),
+    makeBranchSpec(Chords.create(pointB, pointC), pointC),
+    makeBranchSpec(Chords.create(pointD, pointE), pointE),
   ]
 
   const middleSquare = newPolygon([
@@ -206,10 +206,10 @@ export const never_close_quintary = (): LaminationData => {
   const pointH = quintary('4_303')
 
   const branchSpecs = [
-    makeBranchSpec(Chord.new(pointA, pointF), pointA),
-    makeBranchSpec(Chord.new(pointB, pointC), pointC),
-    makeBranchSpec(Chord.new(pointD, pointE), pointE),
-    makeBranchSpec(Chord.new(pointG, pointH), pointH),
+    makeBranchSpec(Chords.create(pointA, pointF), pointA),
+    makeBranchSpec(Chords.create(pointB, pointC), pointC),
+    makeBranchSpec(Chords.create(pointD, pointE), pointE),
+    makeBranchSpec(Chords.create(pointG, pointH), pointH),
   ]
 
   const bigTriangle = newPolygon([
