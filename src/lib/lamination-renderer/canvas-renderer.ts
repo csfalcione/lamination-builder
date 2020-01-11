@@ -1,7 +1,8 @@
-import { RenderSettings, LaminationState } from "../definitions";
+import { RenderSettings, LaminationState, ShapeRenderSettings } from "../definitions";
 import { LaminationRenderer } from './lamination-renderer';
 import { Polygon, Chord, Polygons } from 'laminations-lib';
 import { makeSVGPath } from './svg-renderer';
+import { RenderPolygon, RenderPolygons } from '../render-polygon';
 
 export const makeCanvasRenderer = (ctx: CanvasRenderingContext2D, settings: RenderSettings): LaminationRenderer<void> => {
   
@@ -17,7 +18,7 @@ export const makeCanvasRenderer = (ctx: CanvasRenderingContext2D, settings: Rend
     ctx.clearRect(0, 0, size, size)
   }
 
-  const drawPolygon = (polygon: Polygon) => {
+  const drawPolygon = (polygon: RenderPolygon) => {
     if (polygon.points.size === 0) {
       return;
     }
@@ -25,25 +26,36 @@ export const makeCanvasRenderer = (ctx: CanvasRenderingContext2D, settings: Rend
     const svgPathString = makeSVGPath(polygon, radius, settings.renderHyperbolic)
     const path = new Path2D(svgPathString)
 
-    ctx.stroke(path)
+    ctx.lineWidth = polygon.settings.strokeWidth
+    ctx.strokeStyle = polygon.settings.strokeColor
+    ctx.fillStyle = polygon.settings.fillColor
+
     if (polygon.points.size > 2) {
       ctx.fill(path)
     }
+    ctx.stroke(path)
   }
 
-  const drawLamination = (lamination: Polygon[]) => {
+  const drawLamination = (lamination: RenderPolygon[]) => {
     lamination.forEach(drawPolygon)
   }
 
-  const drawCriticalChords = (chords: Chord[]) => {
-    drawLamination(chords.map(Polygons.fromChord))
+  const drawCriticalChords = (chords: Chord[], settings: ShapeRenderSettings) => {
+    drawLamination(chords.map(Polygons.fromChord).map(p => RenderPolygons.from(p, settings)))
   }
 
-  const drawCircle = (radius) => {
+  const drawCircle = (radius, settings: ShapeRenderSettings) => {
+    const circleStrokeWidth = settings.strokeWidth
+    ctx.lineWidth = circleStrokeWidth
+    ctx.strokeStyle = settings.strokeColor
+    ctx.fillStyle = settings.fillColor
+
     ctx.beginPath()
-    ctx.arc(0, 0, radius, 0, 2 * Math.PI)
-    ctx.clip()
+    ctx.arc(0, 0, radius  + Math.floor(circleStrokeWidth / 2), 0, 2 * Math.PI)
     ctx.closePath()
+    if (settings.fillColor !== 'none') {
+      ctx.fill()
+    }
     ctx.stroke()
   }
 
@@ -54,18 +66,9 @@ export const makeCanvasRenderer = (ctx: CanvasRenderingContext2D, settings: Rend
     // the positive y direction, and right is the positive x direction.
     ctx.transform(1, 0, 0, -1, midX, midY)
 
-    ctx.lineWidth = 3
-    ctx.strokeStyle = settings.circleColor
-    drawCircle(getRadius() + 1)
-
-    ctx.lineWidth = 2
-    ctx.strokeStyle = settings.chordColor
-    ctx.fillStyle = settings.polygonColor
+    drawCircle(getRadius(), settings.circle)
     drawLamination(laminationState.lamination)
-
-    ctx.lineWidth = 2
-    ctx.strokeStyle = settings.criticalChordColor
-    drawCriticalChords(laminationState.criticalChords)
+    drawCriticalChords(laminationState.criticalChords, settings.criticalChords)
 
     ctx.resetTransform()
   }

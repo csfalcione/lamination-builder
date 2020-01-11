@@ -30,7 +30,9 @@ export class LaminationViewerComponent implements OnInit {
   ngOnInit() { }
 
   ngOnChanges() {
-    const ctx: CanvasRenderingContext2D = this.canvas.nativeElement.getContext('2d')
+    const canvasElement = this.canvas.nativeElement
+    canvasElement.style = `background-color: ${this.settings.backgroundColor}`
+    const ctx: CanvasRenderingContext2D = canvasElement.getContext('2d')
     const renderer = makeCanvasRenderer(ctx, this.settings)
     renderer.render(this.laminationState)
     this.checkForIntersections()

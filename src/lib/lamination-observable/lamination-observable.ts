@@ -1,10 +1,11 @@
 import { Observable, Subject } from 'rxjs'
-import { makeBuilder, Lamination, Polygons, Polygon, Fractions } from 'laminations-lib'
+import { makeBuilder, Laminations, Polygon } from 'laminations-lib'
 import { LaminationData } from '../definitions'
+import { RenderPolygons, RenderPolygon } from '../render-polygon'
 
 export interface ObservableLamination {
   // Inner observable. Subscribe to this.
-  lamination$: Observable<Polygon[]>
+  lamination$: Observable<RenderPolygon[]>
   // Manually set then emit the provided lamination.
   set: (lamination: Polygon[]) => void
   // Request that the current content of the observable be emitted.
@@ -17,10 +18,10 @@ export interface ObservableLamination {
 
 export const makeObservableLamination = ({leaves, branchSpecs, base}: LaminationData): ObservableLamination => {
   const branches = makeBuilder(base)(branchSpecs)
-  const lamination$ = new Subject<Polygon[]>()
-  let lamination = leaves
+  const lamination$ = new Subject<RenderPolygon[]>()
+  let lamination: RenderPolygon[] = leaves
 
-  const set = (newLeaves: Polygon[]) => {
+  const set = (newLeaves: RenderPolygon[]) => {
     lamination = newLeaves
     lamination$.next(lamination)
   }
@@ -31,21 +32,23 @@ export const makeObservableLamination = ({leaves, branchSpecs, base}: Lamination
 
   const pullBack = (count: number, cumulative = true) => {
     for (let i = 0; i < count; i++) {
-      let newLeaves = Lamination.pullBack(Fractions.mapBackward)(lamination, branches)
+      let newLeaves = Laminations.pullBack(RenderPolygons.raiseChild)(lamination, branches)
       if (cumulative) {
         newLeaves = [...lamination, ...newLeaves]
       }
-      set(newLeaves.filter(Lamination.removeDuplicates()))
+      set(newLeaves.filter(Laminations.removeDuplicates()))
     }
   }
 
   const mapForward = (count: number, cumulative = false) => {
     for (let i = 0; i < count; i++) {
-      let newLeaves = Lamination.mapForward(Polygons.mapForward)(lamination)
+      let newLeaves: RenderPolygon[] = Laminations.mapForward(RenderPolygons.mapForward)(lamination)
       if (cumulative) {
+        // It's particularly important that each 'old' leaf is before any of its potential duplicates,
+        // 
         newLeaves = [...lamination, ...newLeaves]
       }
-      set(newLeaves.filter(Lamination.removeDuplicates()))
+      set(newLeaves.filter(Laminations.removeDuplicates<RenderPolygon>()))
     }
   }
 

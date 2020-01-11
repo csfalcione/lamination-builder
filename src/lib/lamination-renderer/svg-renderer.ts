@@ -1,6 +1,7 @@
 import { Polygon, Fraction, Chord, Fractions, Chords, Polygons } from 'laminations-lib';
 import { RenderSettings, LaminationState } from '../definitions';
 import { LaminationRenderer } from './lamination-renderer';
+import { RenderPolygon } from '../render-polygon';
 
 // JS's % operator performs the remainder operation, not the modulus operation.
 // They behave differently for negatives.
@@ -64,35 +65,35 @@ const defaultSvgAttrs = {
 }
 
 export const makeSvgRenderer = (settings: RenderSettings): LaminationRenderer<string> => {
-  const radius = Math.floor(2 * settings.size) - 10
+  const radius = Math.floor(settings.size / 2) - 10
 
   const render = (laminationState: LaminationState): string => {
-    const midpoint = 2 * settings.size // Quadruple the size
+    const midpoint = settings.size / 2 // Quadruple the size
     const transform = `matrix(1,0,0,-1,${midpoint},${midpoint})`
 
     const circle = tag('circle', {
       r: radius + 1,
-      stroke: settings.circleColor,
-      'stroke-width': 3,
-      fill: 'none',
+      stroke: settings.circle.strokeColor,
+      'stroke-width': settings.circle.strokeWidth,
+      fill: settings.circle.fillColor,
       transform,
     })
 
     const chords = laminationState.lamination
-      .map((polygon: Polygon) => {
+      .map((polygon: RenderPolygon) => {
         if (polygon.points.size === 0) {
-          return;
+          return
         }
-        let strokeWidth = 1
+        let strokeWidth = polygon.settings.strokeWidth
         if (Polygons.toChords(polygon).some((chord: Chord) => {
           const width = Chords.width(chord)
           return width < 0.01 || 1 - width < 0.01
         })) {
-          strokeWidth = 0.25
+          strokeWidth = strokeWidth * 0.25
         }
         return tag('path', {
-          stroke: settings.chordColor,
-          fill: polygon.points.size > 2 ? settings.polygonColor : 'none',
+          stroke: polygon.settings.strokeColor,
+          fill: polygon.points.size > 2 ? polygon.settings.fillColor : 'none',
           'stroke-width': strokeWidth,
           transform,
           d: makeSVGPath(polygon, radius, settings.renderHyperbolic)
@@ -102,8 +103,8 @@ export const makeSvgRenderer = (settings: RenderSettings): LaminationRenderer<st
     
     const criticalChords = laminationState.criticalChords
       .map((chord: Chord) => tag('path', {
-        stroke: settings.criticalChordColor,
-        'stroke-width': 2,
+        stroke: settings.criticalChords.strokeColor,
+        'stroke-width': settings.criticalChords.strokeWidth,
         fill: 'none',
         transform,
         d: makeSVGPath(Polygons.fromChord(chord), radius, settings.renderHyperbolic)
@@ -112,9 +113,9 @@ export const makeSvgRenderer = (settings: RenderSettings): LaminationRenderer<st
 
     return tag('svg', {
       ...defaultSvgAttrs,
-      width: 4 * settings.size,
-      height: 4 * settings.size,
-      'background-color': settings.backgroundColor,
+      width: settings.size,
+      height: settings.size,
+      style: `background-color: ${settings.backgroundColor};`,
     }, `${circle}${chords}${criticalChords}`)
   }
 

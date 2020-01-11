@@ -6,6 +6,7 @@ import { makeObservableLamination, ObservableLamination } from 'src/lib/laminati
 import { FilesService } from '../files.service';
 import { parseLamination } from 'src/lib/lamination-parser';
 import { RenderSettings, LaminationData, LaminationState } from 'src/lib/definitions';
+import { THROW_IF_NOT_FOUND } from '@angular/core/src/di/injector';
 
 
 @Component({
@@ -15,8 +16,8 @@ import { RenderSettings, LaminationData, LaminationState } from 'src/lib/definit
 })
 export class LaminationBuilderComponent implements OnInit {
 
-  renderSettings: RenderSettings = this.initialRenderSettings()
-  initialData: LaminationData = examples.rabbitLamination()
+  renderSettings: RenderSettings = this.defaultRenderSettings()
+  initialData: LaminationData
 
   lamination$: ObservableLamination
   laminationState: LaminationState = this.laminationStateIdentity()
@@ -27,6 +28,14 @@ export class LaminationBuilderComponent implements OnInit {
   constructor(private files: FilesService) { }
 
   ngOnInit() {
+    const initialDefinition = examples.rabbitLamination
+    parseLamination(initialDefinition, this.defaultRenderSettings())
+    .then(data => {
+      this.initialData = data
+      this.initLamination()  
+    })
+    .catch(err => alert(err))
+
     setTimeout(() => this.initLamination())
   }
 
@@ -104,11 +113,16 @@ export class LaminationBuilderComponent implements OnInit {
     this.files.readTextFile(file)
     .then(jsonString => {
       const userInput = JSON.parse(jsonString)
-      return parseLamination(userInput)
+      return parseLamination(userInput, this.renderSettings)
     })
     .then(data => {
       this.initialData = data
-      this.initLamination()  
+      this.renderSettings = data.renderSettings
+      this.initLamination()
+      setTimeout(() => {
+        // For edge case when the size in the new lamination is different.
+        this.refresh() 
+      })
     })
     .catch(err => alert(err))
     .finally(() => {
@@ -142,15 +156,26 @@ export class LaminationBuilderComponent implements OnInit {
     }
   }
 
-  initialRenderSettings(): RenderSettings {
+  defaultRenderSettings(): RenderSettings {
     return {
-      renderHyperbolic: true,
       size: 600,
-      polygonColor: '#CC0000',
-      chordColor: '#000000',
-      criticalChordColor: '#0000AA',
-      backgroundColor: '#DBDBDB',
-      circleColor: '#000000',
+      renderHyperbolic: true,
+      backgroundColor: 'none',
+      polygons: {
+        fillColor: '#CC0000',
+        strokeColor: 'black',
+        strokeWidth: 2,
+      },
+      criticalChords: {
+        fillColor: 'rbga(0,0,0,0)',
+        strokeColor: '#0000AA',
+        strokeWidth: 3,
+      },
+      circle: {
+        fillColor: '#DBDBDB',
+        strokeColor: 'black',
+        strokeWidth: 2,
+      },
     }
   }
 
