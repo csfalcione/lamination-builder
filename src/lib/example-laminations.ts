@@ -67,7 +67,8 @@ export const template =
           "fillColor": "#FF0000"
         }
       },
-      {"points": ["_110", "_200", "_120"]}
+      {"points": ["_110", "_200", "_120"]},
+      {"points": ["_110"], "settings": {"strokeWidth": 6, "fillColor": "black"}}
     ],
     "settings": {
       "size": 700,

@@ -9,12 +9,14 @@ const mod = (a, b) => ((a % b) + b) % b
 
 const toRadians = (t: Fraction) => 2 * Math.PI * Fractions.toNumber(t)
 
-const svgPoint = (t: Fraction, radius: number) => {
+export const point = (t: Fraction, radius: number): [number, number] => {
   const angle = toRadians(t)
   const xCoord = radius * Math.cos(angle)
   const yCoord = radius * Math.sin(angle)
-  return `${xCoord},${yCoord}`
+  return [xCoord, yCoord]
 }
+
+const svgPoint = (t: Fraction, radius: number) => point(t, radius).join(',')
 
 const getLinePathTo = (point: Fraction, prevPoint: Fraction, circleRadius: number, hyperbolic: boolean): string => {
   if (!hyperbolic) {
@@ -72,18 +74,31 @@ export const makeSvgRenderer = (settings: RenderSettings): LaminationRenderer<st
     const transform = `matrix(1,0,0,-1,${midpoint},${midpoint})`
 
     const circle = tag('circle', {
-      r: radius + 1,
+      r: radius + Math.floor(settings.circle.strokeWidth / 2),
       stroke: settings.circle.strokeColor,
       'stroke-width': settings.circle.strokeWidth,
       fill: settings.circle.fillColor,
       transform,
     })
 
-    const chords = laminationState.lamination
+    const leaves = laminationState.lamination
       .map((polygon: RenderPolygon) => {
         if (polygon.points.size === 0) {
           return
         }
+        if (polygon.points.size === 1) {
+          const [cx, cy] = point(polygon.points.first(), radius)
+          return tag('circle', {
+            r: polygon.settings.strokeWidth,
+            stroke: polygon.settings.strokeColor,
+            'stroke-width': polygon.settings.strokeWidth,
+            fill: polygon.settings.fillColor,
+            cx,
+            cy,
+            transform,
+          })
+        }
+
         let strokeWidth = polygon.settings.strokeWidth
         if (Polygons.toChords(polygon).some((chord: Chord) => {
           const width = Chords.width(chord)
@@ -116,7 +131,7 @@ export const makeSvgRenderer = (settings: RenderSettings): LaminationRenderer<st
       width: settings.size,
       height: settings.size,
       style: `background-color: ${settings.backgroundColor};`,
-    }, `${circle}${chords}${criticalChords}`)
+    }, `${circle}${leaves}${criticalChords}`)
   }
 
   return {render}
