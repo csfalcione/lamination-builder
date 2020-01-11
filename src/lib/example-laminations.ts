@@ -48,7 +48,7 @@ export const template =
   `{
     "name": "EXAMPLE LAMINATION",
     "base": 3,
-    "description": "A sample lamination that exercises the lion's share of available options. Any omitted optional parameters will receive a default value. Note the optional settings overrides and variety of ways to specfiy color.",
+    "description": "A sample lamination that exercises the lion's share of available options. Any omitted optional parameters will receive a default value. Note the optional settings overrides and variety of ways to specify color.",
     "branches": [
       {
         "chord": ["_002", "2_020"],
