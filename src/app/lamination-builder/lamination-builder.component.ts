@@ -112,7 +112,7 @@ export class LaminationBuilderComponent implements OnInit {
     this.files.readTextFile(file)
     .then(jsonString => {
       const userInput = JSON.parse(jsonString)
-      return parseLamination(userInput, this.renderSettings)
+      return parseLamination(userInput, this.defaultRenderSettings())
     })
     .then(data => {
       this.initialData = data
