@@ -6,9 +6,10 @@ Presently no effort has been put into making a pretty interface and the only way
 ## Usage
 
 ### Upload file format
-The uploaded file should contain a JSON object with the following structure:
+The uploaded file should contain a JSON object with the following structure. Note that a property ending
+in a question mark is optional and will receive a default value if not specified.
 ```typescript
-export interface LaminationDefinition {
+interface LaminationDefinition {
   base: number
   name?: string
   description?: string
@@ -17,12 +18,29 @@ export interface LaminationDefinition {
     branch?: boolean
     flipEndpoints?: boolean
     flipDiameters?: boolean
+    settings?: ShapeRenderSettings
   }>
   branches: Array<{
     chord: [NaryString, NaryString]
     endpoints: NaryString[]
     flip?: boolean
   }>
+  settings?: RenderSettings
+}
+
+interface RenderSettings {
+  size?: number
+  renderHyperbolic?: boolean
+  backgroundColor?: string
+  polygons?: ShapeRenderSettings
+  criticalChords?: ShapeRenderSettings
+  circle?: ShapeRenderSettings
+}
+
+interface ShapeRenderSettings {
+  fillColor: string
+  strokeColor: string
+  strokeWidth: number
 }
 ```
 

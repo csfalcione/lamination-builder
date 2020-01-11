@@ -30,26 +30,26 @@ export interface LaminationData {
 }
 
 export interface LaminationState {
-  lamination: RenderPolygon[],
-  criticalChords: Chord[],
+  lamination: RenderPolygon[]
+  criticalChords: Chord[]
 }
 
 export interface ShapeRenderSettings {
-  fillColor: string,
-  strokeColor: string,
-  strokeWidth: number,
+  fillColor: string
+  strokeColor: string
+  strokeWidth: number
 }
 
 export interface RenderSettings {
-  size?: number,
-  renderHyperbolic?: boolean,
-  backgroundColor?: string,
-  polygons?: ShapeRenderSettings,
-  criticalChords?: ShapeRenderSettings,
-  circle?: ShapeRenderSettings,
+  size?: number
+  renderHyperbolic?: boolean
+  backgroundColor?: string
+  polygons?: ShapeRenderSettings
+  criticalChords?: ShapeRenderSettings
+  circle?: ShapeRenderSettings
 }
 
 export interface BuilderState {
-  laminationState: LaminationState,
-  renderSettings: RenderSettings,
+  laminationState: LaminationState
+  renderSettings: RenderSettings
 }

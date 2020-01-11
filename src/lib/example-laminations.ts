@@ -46,24 +46,44 @@ export const never_close_quintary_def: LaminationDefinition = {
 
 export const template =
   `{
-  "name": "EXAMPLE LAMINATION",
-  "base": 3,
-  "description": "Sample description.",
-  "branches": [
-    {
-      "chord": ["_002", "2_020"],
-      "endpoints": ["2_020"]
-    },
-    {
-      "chord": ["_101", "2_011"],
-      "endpoints": ["2_011"]
+    "name": "EXAMPLE LAMINATION",
+    "base": 3,
+    "description": "A sample lamination that exercises the lion's share of available options. Any omitted optional parameters will receive a default value. Note the optional settings overrides and variety of ways to specfiy color.",
+    "branches": [
+      {
+        "chord": ["_002", "2_020"],
+        "endpoints": ["2_020"]
+      },
+      {
+        "chord": ["_101", "2_011"],
+        "endpoints": ["2_011"]
+      }
+    ],
+    "leaves": [
+      {"points": ["_002", "_101", "_201"]},
+      {
+        "points": ["_011", "_020", "_012"],
+        "settings": {
+          "fillColor": "#FF0000"
+        }
+      },
+      {"points": ["_110", "_200", "_120"]}
+    ],
+    "settings": {
+      "size": 700,
+      "renderHyperbolic": true,
+      "criticalChords": {
+        "strokeWidth": 2
+      },
+      "polygons": {
+        "fillColor": "rgb(0, 100, 0)"
+      },
+      "circle": {
+        "fillColor": "rgb(205, 205, 205)",
+        "strokeColor": "black",
+        "strokeWidth": 5
+      }
     }
-  ],
-  "leaves": [
-    {"points": ["_002", "_101", "_201"]},
-    {"points": ["_011", "_020", "_012"]},
-    {"points": ["_110", "_200", "_120"]}
-  ]
-}
+  }  
 `
 
