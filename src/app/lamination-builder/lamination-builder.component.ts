@@ -6,7 +6,6 @@ import { makeObservableLamination, ObservableLamination } from 'src/lib/laminati
 import { FilesService } from '../files.service';
 import { parseLamination } from 'src/lib/lamination-parser';
 import { RenderSettings, LaminationData, LaminationState } from 'src/lib/definitions';
-import { THROW_IF_NOT_FOUND } from '@angular/core/src/di/injector';
 
 
 @Component({

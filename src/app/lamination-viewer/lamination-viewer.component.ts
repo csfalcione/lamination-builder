@@ -19,7 +19,7 @@ export class LaminationViewerComponent implements OnInit {
 
   @Input() laminationState: LaminationState
 
-  @ViewChild('laminationCanvas') canvas: ElementRef
+  @ViewChild('laminationCanvas', { static: true }) canvas: ElementRef
 
   intersections: Intersection[] = []
   showIntersectionLoader = false
