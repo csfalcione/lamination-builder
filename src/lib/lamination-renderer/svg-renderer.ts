@@ -82,24 +82,25 @@ export const makeSvgRenderer = (settings: RenderSettings): LaminationRenderer<st
     })
 
     const leaves = laminationState.lamination
-      .map((polygon: RenderPolygon) => {
+      .map((renderPolygon: RenderPolygon) => {
+        const [polygon, polySettings] = renderPolygon.unwrap()
         if (polygon.points.size === 0) {
           return
         }
         if (polygon.points.size === 1) {
           const [cx, cy] = point(polygon.points.first(), radius)
           return tag('circle', {
-            r: polygon.settings.strokeWidth,
-            stroke: polygon.settings.strokeColor,
-            'stroke-width': polygon.settings.strokeWidth,
-            fill: polygon.settings.fillColor,
+            r: polySettings.strokeWidth,
+            stroke: polySettings.strokeColor,
+            'stroke-width': polySettings.strokeWidth,
+            fill: polySettings.fillColor,
             cx,
             cy,
             transform,
           })
         }
 
-        let strokeWidth = polygon.settings.strokeWidth
+        let strokeWidth = polySettings.strokeWidth
         if (Polygons.toChords(polygon).some((chord: Chord) => {
           const width = Chords.width(chord)
           return width < 0.01 || 1 - width < 0.01
@@ -107,8 +108,8 @@ export const makeSvgRenderer = (settings: RenderSettings): LaminationRenderer<st
           strokeWidth = strokeWidth * 0.25
         }
         return tag('path', {
-          stroke: polygon.settings.strokeColor,
-          fill: polygon.points.size > 2 ? polygon.settings.fillColor : 'none',
+          stroke: polySettings.strokeColor,
+          fill: polygon.points.size > 2 ? polySettings.fillColor : 'none',
           'stroke-width': strokeWidth,
           transform,
           d: makeSVGPath(polygon, radius, settings.renderHyperbolic)

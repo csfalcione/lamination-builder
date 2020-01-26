@@ -1,24 +1,14 @@
 import { Polygon, Polygons } from 'laminations-lib'
 import { ShapeRenderSettings } from './definitions'
+import { Pair } from './pair/pair'
 
-export interface RenderPolygon extends Polygon {
-    settings: ShapeRenderSettings,
-}
+export type RenderPolygon = Pair<Polygon, ShapeRenderSettings>
 
-const from = (poly: Polygon, settings: ShapeRenderSettings): RenderPolygon => ({
-    ...poly,
-    settings,
-})
+const from = (poly: Polygon, settings: ShapeRenderSettings): RenderPolygon => new Pair(poly, settings)
 
-const raiseChild = (parent: RenderPolygon, child: Polygon): RenderPolygon => from(child, parent.settings)
-
-const map = (poly: RenderPolygon, func: (inner: Polygon) => Polygon): RenderPolygon => from(func(poly), poly.settings)
-
-const mapForward = (poly: RenderPolygon): RenderPolygon => map(poly, Polygons.mapForward)
+const mapForward = (poly: RenderPolygon): RenderPolygon => poly.mapLeft(Polygons.mapForward)
 
 export const RenderPolygons = {
     from,
-    raiseChild,
-    map,
     mapForward,
 }

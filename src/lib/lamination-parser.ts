@@ -139,12 +139,12 @@ const parseLaminationDefinition = (def: LaminationDefinition, defaultRenderSetti
     const polygon = newPolygon(leafDef.points.map(parsePoint), polygonSettings)
     
     if (leafDef.branch === true) {
-      const points = polygon.points
-      Polygons.toChords(polygon)
+      const points = polygon.unwrapLeft().points
+      Polygons.toChords(polygon.unwrapLeft())
       // First find the appropriate endpoint for each branch.
       .map((chord, idx) => {
         const offset = leafDef.flipEndpoints? 1 : 0
-        const endpoint = polygon.points.get(mod(idx + offset, points.size))
+        const endpoint = polygon.unwrapLeft().points.get(mod(idx + offset, points.size))
         return {chord, endpoint}
       })
       // Then create appropriate branches.

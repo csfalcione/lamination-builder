@@ -5,6 +5,7 @@ import { RenderSettings, LaminationState } from 'src/lib/definitions';
 import { List } from 'immutable';
 import { Subscription, from, asyncScheduler } from 'rxjs';
 import { mergeAll, toArray, tap, finalize } from 'rxjs/operators';
+import { RenderPolygon } from 'src/lib/render-polygon';
 
 type Intersection = [Chord, Chord]
 
@@ -70,7 +71,7 @@ export class LaminationViewerComponent implements OnInit {
     const lamination = List(this.laminationState.lamination)
 
     const chords = lamination
-      .flatMap(Polygons.toChords)
+      .flatMap(renderPoly => Polygons.toChords(renderPoly.unwrapLeft()))
       .concat(this.laminationState.criticalChords)
 
     let loopCounter = 0
@@ -97,8 +98,9 @@ export class LaminationViewerComponent implements OnInit {
     yield chunk
   }
 
-  prettyPrintLamination(lamination: Polygon[]) {
+  prettyPrintLamination(lamination: RenderPolygon[]) {
     return lamination
+      .map(renderPolygon => renderPolygon.unwrapLeft())
       .sort((a, b) => Fractions.compare(a.points.first(), b.points.first()))
       .map(poly => `${poly}`)
       .join("\n")

@@ -1,5 +1,5 @@
 import { Observable, Subject } from 'rxjs'
-import { makeBuilder, Laminations, Polygon } from 'laminations-lib'
+import { makeBuilder, Laminations, Polygons } from 'laminations-lib'
 import { LaminationData } from '../definitions'
 import { RenderPolygons, RenderPolygon } from '../render-polygon'
 
@@ -7,7 +7,7 @@ export interface ObservableLamination {
   // Inner observable. Subscribe to this.
   lamination$: Observable<RenderPolygon[]>
   // Manually set then emit the provided lamination.
-  set: (lamination: Polygon[]) => void
+  set: (lamination: RenderPolygon[]) => void
   // Request that the current content of the observable be emitted.
   emitCurrent: () => void
   // Pulls back, updates, then emits the lamination in the observable.
@@ -32,23 +32,26 @@ export const makeObservableLamination = ({leaves, branchSpecs, base}: Lamination
 
   const pullBack = (count: number, cumulative = true) => {
     for (let i = 0; i < count; i++) {
-      let newLeaves = Laminations.pullBack(RenderPolygons.raiseChild)(lamination, branches)
+      let newLeaves: RenderPolygon[] = lamination.map(renderPoly => renderPoly.flatMapLeft(polygon => Laminations.pullBack(polygon, branches)))
+        .reduce((acc, item) => acc.concat(item))
       if (cumulative) {
         newLeaves = [...lamination, ...newLeaves]
       }
-      set(newLeaves.filter(Laminations.removeDuplicates()))
+      let filterFunc = Laminations.removeDuplicates()
+      set(newLeaves.filter(renderPolygon => filterFunc(renderPolygon.unwrapLeft())))
     }
   }
 
   const mapForward = (count: number, cumulative = false) => {
     for (let i = 0; i < count; i++) {
-      let newLeaves: RenderPolygon[] = Laminations.mapForward(RenderPolygons.mapForward)(lamination)
+      let newLeaves: RenderPolygon[] = lamination.map(renderPolygon => renderPolygon.mapLeft(Polygons.mapForward))
       if (cumulative) {
         // It's particularly important that each 'old' leaf is before any of its potential duplicates,
-        // 
+        // so that render settings for 'old' leaves take precendence over 'new' leaves.
         newLeaves = [...lamination, ...newLeaves]
       }
-      set(newLeaves.filter(Laminations.removeDuplicates<RenderPolygon>()))
+      let filterFunc = Laminations.removeDuplicates()
+      set(newLeaves.filter(renderPolygon => filterFunc(renderPolygon.unwrapLeft())))
     }
   }
 

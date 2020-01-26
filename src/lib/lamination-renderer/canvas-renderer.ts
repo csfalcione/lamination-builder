@@ -18,23 +18,24 @@ export const makeCanvasRenderer = (ctx: CanvasRenderingContext2D, settings: Rend
     ctx.clearRect(0, 0, size, size)
   }
 
-  const drawPolygon = (polygon: RenderPolygon) => {
+  const drawPolygon = (renderPolygon: RenderPolygon) => {
+    const [polygon, polySettings] = renderPolygon.unwrap()
     if (polygon.points.size === 0) {
       return;
     }
     
     const radius = getRadius()
     if (polygon.points.size === 1) {
-      drawCircle(polygon.settings.strokeWidth / 2, polygon.settings, ...point(polygon.points.first(), radius))
+      drawCircle(polySettings.strokeWidth / 2, polySettings, ...point(polygon.points.first(), radius))
       return
     }
 
     const svgPathString = makeSVGPath(polygon, radius, settings.renderHyperbolic)
     const path = new Path2D(svgPathString)
 
-    ctx.lineWidth = polygon.settings.strokeWidth
-    ctx.strokeStyle = polygon.settings.strokeColor
-    ctx.fillStyle = polygon.settings.fillColor
+    ctx.lineWidth = polySettings.strokeWidth
+    ctx.strokeStyle = polySettings.strokeColor
+    ctx.fillStyle = polySettings.fillColor
 
     if (polygon.points.size > 2) {
       ctx.fill(path)
