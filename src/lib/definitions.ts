@@ -11,6 +11,7 @@ export interface LaminationDefinition {
     flipEndpoints?: boolean
     flipDiameters?: boolean
     settings?: ShapeRenderSettings
+    ignore?: boolean
   }>
   branches: Array<{
     chord: [string, string]

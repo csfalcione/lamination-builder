@@ -32,7 +32,9 @@ export const makeObservableLamination = ({leaves, branchSpecs, base}: Lamination
 
   const pullBack = (count: number, cumulative = true) => {
     for (let i = 0; i < count; i++) {
-      let newLeaves: RenderPolygon[] = lamination.map(renderPoly => renderPoly.flatMapLeft(polygon => Laminations.pullBack(polygon, branches)))
+      let newLeaves: RenderPolygon[] = lamination
+        .filter(renderPoly => renderPoly.unwrapRight().ignore === false)
+        .map(renderPoly => renderPoly.flatMapLeft(polygon => Laminations.pullBack(polygon, branches)))
         .reduce((acc, item) => acc.concat(item))
       if (cumulative) {
         newLeaves = [...lamination, ...newLeaves]

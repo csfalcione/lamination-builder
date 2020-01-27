@@ -16,6 +16,7 @@ interface LaminationDefinition {
   leaves: Array<{
     points: NaryString[]
     branch?: boolean
+    ignore?: boolean
     flipEndpoints?: boolean
     flipDiameters?: boolean
     settings?: ShapeRenderSettings

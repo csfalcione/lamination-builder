@@ -19,7 +19,7 @@ export const makeCanvasRenderer = (ctx: CanvasRenderingContext2D, settings: Rend
   }
 
   const drawPolygon = (renderPolygon: RenderPolygon) => {
-    const [polygon, polySettings] = renderPolygon.unwrap()
+    const [polygon, {renderSettings: polySettings}] = renderPolygon.unwrap()
     if (polygon.points.size === 0) {
       return;
     }
@@ -47,8 +47,8 @@ export const makeCanvasRenderer = (ctx: CanvasRenderingContext2D, settings: Rend
     lamination.forEach(drawPolygon)
   }
 
-  const drawCriticalChords = (chords: Chord[], settings: ShapeRenderSettings) => {
-    drawLamination(chords.map(Polygons.fromChord).map(p => RenderPolygons.from(p, settings)))
+  const drawCriticalChords = (chords: Chord[], renderSettings: ShapeRenderSettings) => {
+    drawLamination(chords.map(Polygons.fromChord).map(p => RenderPolygons.from(p, {renderSettings})))
   }
 
   const drawCircle = (radius, settings: ShapeRenderSettings, x = 0, y = 0) => {

@@ -2,7 +2,7 @@ import { Fraction, Polygons, Fractions, Chords } from 'laminations-lib'
 import {Validator} from 'jsonschema'
 import { LaminationData, LaminationDefinition, RenderSettings, ShapeRenderSettings } from './definitions'
 import { List } from 'immutable'
-import { RenderPolygons, RenderPolygon } from './render-polygon'
+import { RenderPolygons, RenderPolygon, Settings } from './render-polygon'
 
 const definitionSchema = {
   'id': '/LaminationDefinition',
@@ -41,7 +41,10 @@ const polygonSchema = {
     },
     'flipDiameters': {
       'type': 'boolean'
-    }
+    },
+    'ignore': {
+      'type': 'boolean'
+    },
   },
   'required': ['points']
 }
@@ -97,7 +100,7 @@ const getValidator = () => {
   return validator
 }
 
-const newPolygon = (points: Fraction[], settings: ShapeRenderSettings): RenderPolygon =>
+const newPolygon = (points: Fraction[], settings: Settings): RenderPolygon =>
   RenderPolygons.from(Polygons.create(List(points)), settings)
 
 const override = <T extends object>(base: T, child: T): T => {
@@ -136,15 +139,15 @@ const parseLaminationDefinition = (def: LaminationDefinition, defaultRenderSetti
   
   const leaves = def.leaves.map(leafDef => {
     const polygonSettings = override(renderSettings.polygons, leafDef.settings)
-    const polygon = newPolygon(leafDef.points.map(parsePoint), polygonSettings)
-    
+    const renderPolygon = newPolygon(leafDef.points.map(parsePoint), {renderSettings: polygonSettings, ignore: leafDef.ignore === true})
+    const polygon = renderPolygon.unwrapLeft()
     if (leafDef.branch === true) {
-      const points = polygon.unwrapLeft().points
-      Polygons.toChords(polygon.unwrapLeft())
+      const points = polygon.points
+      Polygons.toChords(polygon)
       // First find the appropriate endpoint for each branch.
       .map((chord, idx) => {
         const offset = leafDef.flipEndpoints? 1 : 0
-        const endpoint = polygon.unwrapLeft().points.get(mod(idx + offset, points.size))
+        const endpoint = polygon.points.get(mod(idx + offset, points.size))
         return {chord, endpoint}
       })
       // Then create appropriate branches.
@@ -158,7 +161,7 @@ const parseLaminationDefinition = (def: LaminationDefinition, defaultRenderSetti
       .forEach(branchSpec => branchSpecs.push(branchSpec))
     }
 
-    return polygon
+    return renderPolygon
   })
 
   return {

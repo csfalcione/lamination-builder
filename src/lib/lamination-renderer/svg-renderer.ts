@@ -83,7 +83,7 @@ export const makeSvgRenderer = (settings: RenderSettings): LaminationRenderer<st
 
     const leaves = laminationState.lamination
       .map((renderPolygon: RenderPolygon) => {
-        const [polygon, polySettings] = renderPolygon.unwrap()
+        const [polygon, {renderSettings: polySettings}] = renderPolygon.unwrap()
         if (polygon.points.size === 0) {
           return
         }
