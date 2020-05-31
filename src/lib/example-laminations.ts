@@ -69,7 +69,7 @@ export const template =
         },
       },
       {"points": ["_110", "_200", "_120"]},
-      {"points": ["_110"], "settings": {"strokeWidth": 6, "fillColor": "black"}},
+      {"points": ["_110"], "settings": {"strokeWidth": 6, /*"fillColor": "black"*/}}, // block comments are supported too
     ],
     "settings": {
       "size": 700,
