@@ -51,12 +51,13 @@ export const template =
     "description": "A sample lamination that exercises the lion's share of available options. Any omitted optional parameters will receive a default value. Note the optional settings overrides and variety of ways to specify color.",
     "branches": [
       {
+        // Line comments are supported.
         "chord": ["_002", "2_020"],
-        "endpoints": ["2_020"]
+        "endpoints": ["2_020"], // trailing commas are acceptable
       },
       {
         "chord": ["_101", "2_011"],
-        "endpoints": ["2_011"]
+        "endpoints": ["2_011"],
       }
     ],
     "leaves": [
@@ -65,14 +66,14 @@ export const template =
         "points": ["_011", "_020", "_012"],
         "settings": {
           "fillColor": "#FF0000"
-        }
+        },
       },
       {"points": ["_110", "_200", "_120"]},
-      {"points": ["_110"], "settings": {"strokeWidth": 6, "fillColor": "black"}}
+      {"points": ["_110"], "settings": {"strokeWidth": 6, "fillColor": "black"}},
     ],
     "settings": {
       "size": 700,
-      "renderHyperbolic": true,
+      // "renderHyperbolic": true,
       "criticalChords": {
         "strokeWidth": 2
       },
@@ -82,8 +83,8 @@ export const template =
       "circle": {
         "fillColor": "rgb(205, 205, 205)",
         "strokeColor": "black",
-        "strokeWidth": 5
-      }
+        "strokeWidth": 5,
+      },
     }
   }  
 `

@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { map } from 'rxjs/operators'
+import JSON5 from 'json5';
 import { makeSvgRenderer } from '../../lib/lamination-renderer/svg-renderer';
 import * as examples from '../../lib/example-laminations'
 import { makeObservableLamination, ObservableLamination } from 'src/lib/lamination-observable/lamination-observable'
@@ -111,7 +112,7 @@ export class LaminationBuilderComponent implements OnInit {
 
     this.files.readTextFile(file)
     .then(jsonString => {
-      const userInput = JSON.parse(jsonString)
+      const userInput = JSON5.parse(jsonString)
       return parseLamination(userInput, this.defaultRenderSettings())
     })
     .then(data => {
@@ -131,7 +132,7 @@ export class LaminationBuilderComponent implements OnInit {
 
   saveTemplateFile() {
     this.files.saveTextFile(
-      'Example Lamination.json',
+      'Example Lamination.json5',
       examples.template,
       'application/json'
     )
